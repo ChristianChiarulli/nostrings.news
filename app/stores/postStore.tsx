@@ -33,7 +33,7 @@ export interface PostState {
 
 const useRandomQuoteStore = create<PostState>()(
   devtools(
-    persist(
+    // persist(
       (set, _) => ({
         postLinkTitle: "",
         setPostLinkTitle: (title: string) => set({ postLinkTitle: title }),
@@ -73,11 +73,11 @@ const useRandomQuoteStore = create<PostState>()(
           set({ postDiscussionText: text }),
       }),
 
-      {
-        name: "nostrings-post-store",
-        storage: createJSONStorage(() => sessionStorage),
-      },
-    ),
+    //   {
+    //     name: "nostrings-post-store",
+    //     storage: createJSONStorage(() => sessionStorage),
+    //   },
+    // ),
   ),
 );
 

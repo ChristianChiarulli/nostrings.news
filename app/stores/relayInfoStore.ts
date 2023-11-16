@@ -45,7 +45,7 @@ interface RelayStore {
 
 export const useRelayInfoStore = create<RelayStore>()(
   devtools(
-    persist(
+    // persist(
       (set, get) => ({
         relayInfoRecord: {},
         addRelayInfo: (relayUrl, info) =>
@@ -67,10 +67,10 @@ export const useRelayInfoStore = create<RelayStore>()(
             return { relayInfoRecord: remainingRelays };
           }),
       }),
-      {
-        name: "nostrings-relayinfo-storage",
-        storage: createJSONStorage(() => sessionStorage),
-      },
-    ),
+      // {
+      //   name: "nostrings-relayinfo-storage",
+      //   storage: createJSONStorage(() => sessionStorage),
+      // },
+    // ),
   ),
 );

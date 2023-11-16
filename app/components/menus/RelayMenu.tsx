@@ -68,16 +68,23 @@ export default function RelayMenu() {
                           <Dialog.Title className="text-base font-semibold leading-6 text-zinc-900 dark:text-zinc-100">
                             relays
                           </Dialog.Title>
-                          <InformationCircleIcon
-                            className="h-5 w-5 cursor-pointer text-zinc-400"
-                            aria-hidden="true"
-                          />
+
+                          <a
+                            href="https://nostr.com/relays"
+                            target="_blank"
+                            // rel="noreferrer"
+                          >
+                            <InformationCircleIcon
+                              className="h-5 w-5 cursor-pointer text-zinc-400"
+                              aria-hidden="true"
+                            />
+                          </a>
                         </div>
 
                         <div className="ml-3 flex h-7 items-center">
                           <button
                             type="button"
-                            className="rounded-md ring-0 outline-none bg-white text-zinc-400 hover:text-zinc-500 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-100"
+                            className="rounded-md bg-white text-zinc-400 outline-none ring-0 hover:text-zinc-500 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-100"
                             onClick={() => setRelayMenuIsOpen(false)}
                           >
                             <span className="sr-only">Close panel</span>

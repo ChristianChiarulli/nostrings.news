@@ -22,7 +22,7 @@ import Zap from "../actions/Zap";
 import useAddSatStore from "@/stores/addSatStore";
 
 interface Props {
-  post: Event | null;
+  post: Event;
 }
 
 export default function Post({ post }: Props) {
@@ -45,7 +45,7 @@ export default function Post({ post }: Props) {
 
   const router = useRouter();
 
-  if (!post) return null;
+  // if (!post) return null;
 
   const eventPointer: EventPointer = {
     id: post.id,

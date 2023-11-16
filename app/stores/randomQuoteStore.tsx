@@ -11,18 +11,18 @@ export interface RandomQuoteState {
 
 const useRandomQuoteStore = create<RandomQuoteState>()(
   devtools(
-    persist(
+    // persist(
       (set, get) => ({
         randomQuote: getRandomNewsQuote(),
         setRandomQuote: (quote: string) => set({ randomQuote: quote }),
         getRandomQuote: () => get().randomQuote,
       }),
 
-      {
-        name: "nostrings-random-quote",
-        storage: createJSONStorage(() => sessionStorage),
-      },
-    ),
+    //   {
+    //     name: "nostrings-random-quote",
+    //     storage: createJSONStorage(() => sessionStorage),
+    //   },
+    // ),
   ),
 );
 

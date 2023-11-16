@@ -9,7 +9,7 @@ export interface AddSatsState {
 
 const useAddSatStore = create<AddSatsState>()(
   devtools(
-    persist(
+    // persist(
       (set, _) => ({
         additionalSats: {},
         setAdditionalSats: (eventId, sats) =>
@@ -23,11 +23,11 @@ const useAddSatStore = create<AddSatsState>()(
           }),
       }),
 
-      {
-        name: "nostrings-additional-sats",
-        storage: createJSONStorage(() => sessionStorage),
-      },
-    ),
+      // {
+      //   name: "nostrings-additional-sats",
+      //   storage: createJSONStorage(() => sessionStorage),
+      // },
+    // ),
   ),
 );
 

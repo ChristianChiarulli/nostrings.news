@@ -54,7 +54,7 @@ export interface EventState {
 
 const useEventStore = create<EventState>()(
   devtools(
-    persist(
+    // persist(
       (set, get) => ({
         newPosts: [],
         addNewPost: (event) =>
@@ -170,11 +170,11 @@ const useEventStore = create<EventState>()(
         },
       }),
 
-      {
-        name: "nostrings-event-storage",
-        storage: createJSONStorage(() => sessionStorage),
-      },
-    ),
+    //   {
+    //     name: "nostrings-event-storage",
+    //     storage: createJSONStorage(() => sessionStorage),
+    //   },
+    // ),
   ),
 );
 
