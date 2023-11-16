@@ -1,0 +1,59 @@
+{
+  "name": "nostrings",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=18.14"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@bitcoin-design/bitcoin-icons": "^0.1.1",
+    "@bitcoin-design/bitcoin-icons-react": "^0.1.10",
+    "@headlessui/react": "^1.7.17",
+    "@heroicons/react": "^2.0.18",
+    "@tailwindcss/forms": "^0.5.7",
+    "bolt11": "^1.4.1",
+    "dayjs": "^1.11.10",
+    "dotenv": "^16.3.1",
+    "fuse.js": "^7.0.0",
+    "geist": "^1.1.0",
+    "install": "^0.13.0",
+    "jotai": "^2.5.1",
+    "lnurl-pay": "^3.0.1",
+    "markdown-it": "^13.0.2",
+    "next": "^14.0.2",
+    "nostr-tools": "^1.17.0",
+    "numeral": "^2.0.6",
+    "react": "^18",
+    "react-dom": "^18",
+    "use-long-press": "^3.2.0",
+    "validator": "^13.11.0",
+    "zustand": "^4.4.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.10",
+    "@types/node": "^20",
+    "@types/numeral": "^2.0.5",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/validator": "^13.11.6",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "^14.0.2",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "postcss": "^8",
+    "prettier": "^3.1.0",
+    "prettier-plugin-organize-attributes": "^1.0.0",
+    "prettier-plugin-tailwindcss": "^0.5.7",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  }
+}
