@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { Profile } from "@/types";
 import Zap from "../actions/Zap";
 import useAddSatStore from "@/stores/addSatStore";
+import PostMenu from "../menus/PostMenu";
 
 interface Props {
   post: Event;
@@ -93,7 +94,9 @@ export default function Post({ post }: Props) {
                 : "text-zinc-500 dark:text-zinc-400"
             }    `}
           >
-            {formatSats(addUpZaps(zapReciepts[post?.id], additionalSats[post?.id] || 0))}
+            {formatSats(
+              addUpZaps(zapReciepts[post?.id], additionalSats[post?.id] || 0),
+            )}
           </span>
           <span className="text-[.7rem] font-light text-zinc-500 dark:text-zinc-400">
             /
@@ -122,7 +125,12 @@ export default function Post({ post }: Props) {
           >
             {getTagValue("t", post.tags)}
           </Link>
-          <EllipsisHorizontalIcon className="h-4 w-4 cursor-pointer rounded-full text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800" />
+
+          {/* <div className="flex items-center justify-center p-0 "> */}
+            <PostMenu />
+            {/* <EllipsisHorizontalIcon className="h-4 w-4 cursor-pointer rounded-full text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800" /> */}
+            {/* </PostMenu> */}
+          {/* </div> */}
         </div>
       </div>
     </div>

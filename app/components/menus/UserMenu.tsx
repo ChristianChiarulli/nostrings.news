@@ -35,7 +35,7 @@ export default function UserMenu({ children }: any) {
         leaveTo="opacity-0 translate-y-1"
       >
         <Popover.Panel className="absolute right-0 z-10 mt-4 flex w-screen max-w-min translate-x-4 px-4">
-          <div className="w-48 shrink rounded-md border border-zinc-200 bg-zinc-50 py-2 text-sm font-semibold leading-6 text-zinc-800 shadow-lg ring-1 ring-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-900/5">
+          <div className="w-48 shrink rounded-md border border-zinc-200 bg-zinc-50 py-2 text-sm font-semibold leading-6 text-zinc-800 shadow-lg ring-1 ring-zinc-200 dark:border-zinc-400/40 dark:bg-zinc-900 dark:text-zinc-300/90 dark:ring-zinc-900/5">
             {[
               {
                 // href: `/u/${nip19.npubEncode(userPublicKey)}`,
@@ -55,7 +55,7 @@ export default function UserMenu({ children }: any) {
                 key={idx}
                 as={Link}
                 href={href}
-                className="block select-none px-4 py-1 hover:bg-purple-200 dark:hover:bg-purple-600"
+                className="block select-none px-4 py-1 hover:bg-zinc-800/40 hover:text-zinc-800 dark:hover:text-zinc-100"
               >
                 {label}
               </Popover.Button>
@@ -63,8 +63,10 @@ export default function UserMenu({ children }: any) {
 
             <Popover.Button
               as="button"
-              className="block w-full cursor-pointer select-none px-4 py-1 text-left hover:bg-purple-200 dark:hover:bg-purple-600"
-              onClick={() => {setRelayMenuIsOpen(true)}}
+              className="block w-full cursor-pointer select-none px-4 py-1 text-left hover:bg-zinc-800/40 hover:text-zinc-200 dark:hover:text-zinc-100"
+              onClick={() => {
+                setRelayMenuIsOpen(true);
+              }}
             >
               relays
             </Popover.Button>
@@ -72,7 +74,7 @@ export default function UserMenu({ children }: any) {
             <Popover.Button
               as="button"
               onClick={signOut}
-              className="mt-2 block w-full cursor-pointer px-4 py-1 text-left hover:bg-purple-200 dark:hover:bg-purple-600"
+              className="mt-2 block w-full cursor-pointer px-4 py-1 text-left hover:bg-zinc-800/40 hover:text-zinc-200 dark:hover:text-zinc-100"
             >
               <p>{"sign out"}</p>
             </Popover.Button>
