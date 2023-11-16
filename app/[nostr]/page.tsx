@@ -8,8 +8,6 @@ import Post from "@/components/posts/Post";
 import useEventStore from "@/stores/eventStore";
 import useRelayStateStore from "@/stores/relayStateStore";
 import useRelayStore from "@/stores/relayStore";
-import { ZapThreadsAttributes } from "zapthreads";
-import "zapthreads";
 import useLoginStore from "@/stores/loginStore";
 
 export default function NewsItemPage() {
@@ -71,12 +69,4 @@ export default function NewsItemPage() {
       {nevent && <div className="w-full"></div>}
     </div>
   );
-}
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "zap-threads": ZapThreadsAttributes;
-    }
-  }
 }
