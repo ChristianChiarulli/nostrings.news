@@ -72,7 +72,7 @@ export default function RelayMenu() {
                           <a
                             href="https://nostr.com/relays"
                             target="_blank"
-                            // rel="noreferrer"
+                            rel="noreferrer"
                           >
                             <InformationCircleIcon
                               className="h-5 w-5 cursor-pointer text-zinc-400"
