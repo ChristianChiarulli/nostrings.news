@@ -4,11 +4,12 @@ module.exports = {
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier", // Add this line
-    "plugin:prettier/recommended", // Add this line
+    // "prettier", // Add this line
+    // "plugin:prettier/recommended", // Add this line
   ],
   parser: "@typescript-eslint/parser",
-  plugins: ["@typescript-eslint", "react", "react-hooks", "import"],
+  // plugins: ["@typescript-eslint", "react", "react-hooks", "import"],
+  plugins: ["@typescript-eslint", "react", "react-hooks" ],
   rules: {
     "@next/next/no-html-link-for-pages": "off",
     "react/react-in-jsx-scope": "off",
@@ -17,24 +18,24 @@ module.exports = {
     "react-hooks/exhaustive-deps": "off",
     "react/no-unescaped-entities": "off",
     // Add the import/order rule here
-    "import/order": [
-      "error",
-      {
-        groups: [
-          "builtin",
-          "external",
-          "internal",
-          "parent",
-          "sibling",
-          "index",
-        ],
-        "newlines-between": "always",
-        alphabetize: {
-          order: "asc",
-          caseInsensitive: true,
-        },
-      },
-    ],
+    // "import/order": [
+    //   "error",
+    //   {
+    //     groups: [
+    //       "builtin",
+    //       "external",
+    //       "internal",
+    //       "parent",
+    //       "sibling",
+    //       "index",
+    //     ],
+    //     "newlines-between": "always",
+    //     alphabetize: {
+    //       order: "asc",
+    //       caseInsensitive: true,
+    //     },
+    //   },
+    // ],
   },
   parserOptions: {
     babelOptions: {

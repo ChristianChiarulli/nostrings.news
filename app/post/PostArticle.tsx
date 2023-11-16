@@ -21,7 +21,7 @@ export default function PostLink() {
 
   const router = useRouter();
 
-  const { getWriteRelays } = useRelayStateStore();
+  const { writeRelays } = useRelayStateStore();
   const { publishPool } = useRelayStore();
 
   const handleTitleChange = async (e: any) => {
@@ -131,7 +131,7 @@ export default function PostLink() {
       // TODO: cache event
       console.log("news event", event);
       if (commentEvent) {
-        publishPool(getWriteRelays(), commentEvent, onCommentEventSeen);
+        publishPool(writeRelays, commentEvent, onCommentEventSeen);
       } else {
         console.log("post published");
         postStore?.clearPostLink();
@@ -140,7 +140,7 @@ export default function PostLink() {
       }
     };
 
-    publishPool(getWriteRelays(), newsEvent, onNewsEventSeen);
+    publishPool(writeRelays, newsEvent, onNewsEventSeen);
   };
 
   return (
