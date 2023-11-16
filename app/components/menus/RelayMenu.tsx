@@ -20,7 +20,7 @@ export default function RelayMenu() {
   useEffect(() => {
     allRelays.forEach((relayUrl) => {
       const cachedRelayInfo = getRelayInfo(relayUrl);
-      let relayHttpUrl = relayUrl.replace("wss://", "https://");
+      const relayHttpUrl = relayUrl.replace("wss://", "https://");
       if (cachedRelayInfo === undefined) {
         console.log("Fetching relay info:", relayHttpUrl);
         const getRelayInfo = async (url: string) => {

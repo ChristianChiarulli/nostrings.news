@@ -168,8 +168,9 @@ export default function Zap({ postEvent }: Props) {
     // check if user has lud16 in profile
     // if so, send zap to lud16
     // if not, send zap to me
+    let profile = null;
 
-    let profile = getProfileEvent(postEvent.pubkey);
+    profile = getProfileEvent(postEvent.pubkey);
 
     if (!profile) {
       alert("Error sending zap! Could not find profile.");

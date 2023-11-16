@@ -63,16 +63,16 @@ export async function cacheZapReciepts(eventId: string) {
 export async function getZapEndpoint(metadata: Event): Promise<null | string> {
   try {
     let lnurl: string = "";
-    let { lud16 } = JSON.parse(metadata.content);
+    const { lud16 } = JSON.parse(metadata.content);
     if (lud16) {
-      let [name, domain] = lud16.split("@");
+      const [name, domain] = lud16.split("@");
       lnurl = `https://${domain}/.well-known/lnurlp/${name}`;
     } else {
       return null;
     }
 
-    let res = await fetch(lnurl);
-    let body = await res.json();
+    const res = await fetch(lnurl);
+    const body = await res.json();
 
     if (body.allowsNostr && body.nostrPubkey) {
       return body.callback;
