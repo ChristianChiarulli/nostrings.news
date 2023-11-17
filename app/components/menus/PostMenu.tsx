@@ -22,13 +22,7 @@ export default function PostMenu({ postEvent }: Props) {
   const { setRelayMenuIsOpen } = useRelayMenuStore();
   const { writeRelays } = useRelayStateStore();
   const { publishPool } = useRelayStore();
-  const {
-    removeNewPost,
-    newPosts,
-    setNewPosts,
-    removeSitePost,
-    removeTaggedPost,
-  } = useEventStore();
+  const { removeNewPost, removeSitePost, removeTaggedPost } = useEventStore();
 
   const [showNotification, setShowNotification] = useState(false);
 
@@ -43,7 +37,7 @@ export default function PostMenu({ postEvent }: Props) {
       sig: "",
       kind: 5,
       created_at: Math.floor(Date.now() / 1000),
-      tags: [],
+      tags: [["e", postEvent.id]],
       content: "",
       pubkey: postEvent.pubkey,
     };
@@ -68,9 +62,7 @@ export default function PostMenu({ postEvent }: Props) {
       close();
     };
 
-    onSeen(event);
-
-    // publishPool(writeRelays, event, onSeen);
+    publishPool(writeRelays, event, onSeen);
   };
 
   return (
