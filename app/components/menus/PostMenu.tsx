@@ -51,7 +51,6 @@ export default function PostMenu({ postEvent }: Props) {
     }
 
     const onSeen = (event: Event) => {
-      loginStore.setUserEvent(event);
       setShowNotification(true);
       setTimeout(() => {
         setShowNotification(false);
