@@ -1,27 +1,76 @@
 "use client";
 import { Popover, Transition } from "@headlessui/react";
-import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 
 import useLoginStore from "@/stores/loginStore";
 import useStore from "@/stores/useStore";
 import { useRelayMenuStore } from "@/stores/relayMenuStore";
 import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
+import { Event, getEventHash, getSignature } from "nostr-tools";
+import useRelayStateStore from "@/stores/relayStateStore";
+import useRelayStore from "@/stores/relayStore";
+import SimpleNotification from "../notifications/SimpleNotification";
+import useEventStore from "@/stores/eventStore";
 
 interface Props {
-  children: React.ReactNode;
+  postEvent: Event;
 }
 
-export default function PostMenu() {
+export default function PostMenu({ postEvent }: Props) {
   const loginStore = useStore(useLoginStore, (state) => state);
 
   const { setRelayMenuIsOpen } = useRelayMenuStore();
+  const { writeRelays } = useRelayStateStore();
+  const { publishPool } = useRelayStore();
+  const {
+    removeNewPost,
+    newPosts,
+    setNewPosts,
+    removeSitePost,
+    removeTaggedPost,
+  } = useEventStore();
 
-  const signOut = () => {
-    loginStore?.setUserKeyPair({
-      publicKey: "",
-      secretKey: "",
-    });
+  const [showNotification, setShowNotification] = useState(false);
+
+  const handleRemovePost = async (e: any, close: any) => {
+    e.preventDefault();
+    if (!loginStore?.userEvent) {
+      return;
+    }
+
+    let event: Event = {
+      id: "",
+      sig: "",
+      kind: 5,
+      created_at: Math.floor(Date.now() / 1000),
+      tags: [],
+      content: "",
+      pubkey: postEvent.pubkey,
+    };
+
+    event.id = getEventHash(event);
+
+    if (loginStore.userKeyPair.secretKey) {
+      event.sig = getSignature(event, loginStore.userKeyPair.secretKey);
+    } else {
+      event = await window.nostr.signEvent(event);
+    }
+
+    const onSeen = (event: Event) => {
+      loginStore.setUserEvent(event);
+      setShowNotification(true);
+      setTimeout(() => {
+        setShowNotification(false);
+      }, 750);
+      removeNewPost(postEvent.id);
+      removeSitePost(postEvent.id);
+      removeTaggedPost(postEvent.id);
+      close();
+    };
+
+    onSeen(event);
+
+    // publishPool(writeRelays, event, onSeen);
   };
 
   return (
@@ -40,45 +89,56 @@ export default function PostMenu() {
         leaveTo="opacity-0 translate-y-1"
       >
         <Popover.Panel className="absolute left-0 z-10 transform">
-          <div className="min-w-[8rem] shrink rounded-md border border-zinc-200 bg-zinc-50 py-1 text-sm font-semibold leading-6 text-zinc-600/90 shadow-lg ring-1 ring-zinc-200 dark:border-zinc-400/40 dark:bg-zinc-900 dark:text-zinc-300/90 dark:ring-zinc-900/5">
-            <Popover.Button
-              as="button"
-              className="block w-full cursor-pointer select-none py-1 pl-6 text-left hover:bg-zinc-800/40 hover:text-zinc-800 dark:hover:text-zinc-100"
-              onClick={() => {
-                setRelayMenuIsOpen(true);
-              }}
-            >
-              copy link
-            </Popover.Button>
-            <Popover.Button
-              as="button"
-              className="block w-full cursor-pointer select-none py-1 pl-6 text-left hover:bg-zinc-800/40 hover:text-zinc-800 dark:hover:text-zinc-100"
-              onClick={() => {
-                setRelayMenuIsOpen(true);
-              }}
-            >
-              bookmark
-            </Popover.Button>
-            <Popover.Button
-              as="button"
-              className="block w-full cursor-pointer select-none py-1 pl-6 text-left hover:bg-zinc-800/40 hover:text-zinc-800 dark:hover:text-zinc-100"
-              onClick={() => {
-                setRelayMenuIsOpen(true);
-              }}
-            >
-              hide
-            </Popover.Button>
-            <div className="border-t border-zinc-200 dark:border-zinc-700/40" />
-            <Popover.Button
-              as="button"
-              onClick={signOut}
-              className="block w-full cursor-pointer py-1 pl-6 text-left hover:bg-zinc-800/40 hover:text-zinc-800 dark:hover:text-zinc-100"
-            >
-              <p>remove</p>
-            </Popover.Button>
-          </div>
+          {({ close }) => (
+            <div className="min-w-[8rem] shrink rounded-md border border-zinc-200 bg-zinc-50 py-1 text-sm font-semibold leading-6 text-zinc-600/90 shadow-lg ring-1 ring-zinc-200 dark:border-zinc-400/40 dark:bg-zinc-900 dark:text-zinc-300/90 dark:ring-zinc-900/5">
+              <Popover.Button
+                as="button"
+                className="block w-full cursor-pointer select-none py-1 pl-6 text-left hover:bg-zinc-800/40 hover:text-zinc-800 dark:hover:text-zinc-100"
+                onClick={() => {
+                  setRelayMenuIsOpen(true);
+                }}
+              >
+                copy link
+              </Popover.Button>
+              <Popover.Button
+                as="button"
+                className="block w-full cursor-pointer select-none py-1 pl-6 text-left hover:bg-zinc-800/40 hover:text-zinc-800 dark:hover:text-zinc-100"
+                // onClick={() => {
+                //   setRelayMenuIsOpen(true);
+                // }}
+              >
+                bookmark
+              </Popover.Button>
+              <div className="border-t border-zinc-200 dark:border-zinc-700/40" />
+              <Popover.Button
+                as="button"
+                className="block w-full cursor-pointer select-none py-1 pl-6 text-left hover:bg-zinc-800/40 hover:text-zinc-800 dark:hover:text-zinc-100"
+                onClick={() => {
+                  setRelayMenuIsOpen(true);
+                }}
+              >
+                mute
+              </Popover.Button>
+
+              {loginStore?.userKeyPair.publicKey === postEvent.pubkey && (
+                <Popover.Button
+                  as="button"
+                  onClick={(e) => handleRemovePost(e, close)}
+                  className="block w-full cursor-pointer py-1 pl-6 text-left text-red-400 hover:bg-red-800/10"
+                >
+                  <p>remove</p>
+                </Popover.Button>
+              )}
+            </div>
+          )}
         </Popover.Panel>
       </Transition>
+      <SimpleNotification
+        title="Post removed"
+        message="Your post has been removed."
+        show={showNotification}
+        setShow={setShowNotification}
+      />
     </Popover>
   );
 }

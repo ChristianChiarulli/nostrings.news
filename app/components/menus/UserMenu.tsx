@@ -17,6 +17,7 @@ export default function UserMenu({ children }: any) {
       publicKey: "",
       secretKey: "",
     });
+    loginStore?.clearUserEvent();
   };
 
   return (

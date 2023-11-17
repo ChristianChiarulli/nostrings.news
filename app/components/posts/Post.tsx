@@ -1,12 +1,12 @@
 "use client";
 
-import { EllipsisHorizontalIcon } from "@heroicons/react/24/solid";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Event, nip19 } from "nostr-tools";
 import { EventPointer } from "nostr-tools/lib/types/nip19";
+import 'nprogress/nprogress.css'
 
 import {
   addUpZaps,
@@ -125,12 +125,7 @@ export default function Post({ post }: Props) {
           >
             {getTagValue("t", post.tags)}
           </Link>
-
-          {/* <div className="flex items-center justify-center p-0 "> */}
-            <PostMenu />
-            {/* <EllipsisHorizontalIcon className="h-4 w-4 cursor-pointer rounded-full text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800" /> */}
-            {/* </PostMenu> */}
-          {/* </div> */}
+          <PostMenu postEvent={post} />
         </div>
       </div>
     </div>

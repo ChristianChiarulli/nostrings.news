@@ -46,6 +46,8 @@ export default function UserProfile() {
   useEffect(() => {
     if (userEvent) {
       setProfile(parseProfileContent(userEvent?.content));
+    } else {
+      setupUserProfile();
     }
   }, [userEvent]);
 

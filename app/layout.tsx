@@ -6,7 +6,6 @@ import { cookies } from "next/headers";
 
 import Footer from "./components/footer/Footer";
 import Header from "./components/header/Header";
-import Refresh from "./components/util/Refresh";
 import RelayMenu from "./components/menus/RelayMenu";
 
 export const metadata: Metadata = {

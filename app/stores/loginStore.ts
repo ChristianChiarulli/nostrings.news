@@ -9,6 +9,7 @@ export interface LoginState {
 
   userEvent: Event | null;
   setUserEvent: (userEvent: Event | null) => void;
+  clearUserEvent: () => void;
 }
 
 const useLoginStore = create<LoginState>()(
@@ -36,6 +37,7 @@ const useLoginStore = create<LoginState>()(
             }
             return {};
           }),
+        clearUserEvent: () => set({ userEvent: null }),
       }),
 
       {
