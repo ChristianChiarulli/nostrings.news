@@ -101,15 +101,15 @@ export default function PostMenu({ postEvent }: Props) {
                 bookmark
               </Popover.Button>
               <div className="border-t border-zinc-200 dark:border-zinc-700/40" />
-              <Popover.Button
-                as="button"
-                className="block w-full cursor-pointer select-none py-1 pl-6 text-left hover:bg-zinc-800/40 hover:text-zinc-800 dark:hover:text-zinc-100"
-                onClick={() => {
-                  setRelayMenuIsOpen(true);
-                }}
-              >
-                mute
-              </Popover.Button>
+              {/* <Popover.Button */}
+              {/*   as="button" */}
+              {/*   className="block w-full cursor-pointer select-none py-1 pl-6 text-left hover:bg-zinc-800/40 hover:text-zinc-800 dark:hover:text-zinc-100" */}
+              {/*   onClick={() => { */}
+              {/*     setRelayMenuIsOpen(true); */}
+              {/*   }} */}
+              {/* > */}
+              {/*   mute */}
+              {/* </Popover.Button> */}
 
               {loginStore?.userKeyPair.publicKey === postEvent.pubkey && (
                 <Popover.Button
@@ -125,8 +125,9 @@ export default function PostMenu({ postEvent }: Props) {
         </Popover.Panel>
       </Transition>
       <SimpleNotification
-        title="Post removed"
-        message="Your post has been removed."
+        type="success"
+        title="success"
+        message="your post has been removed"
         show={showNotification}
         setShow={setShowNotification}
       />

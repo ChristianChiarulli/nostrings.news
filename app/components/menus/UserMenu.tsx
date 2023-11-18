@@ -6,6 +6,7 @@ import { Fragment } from "react";
 import useLoginStore from "@/stores/loginStore";
 import useStore from "@/stores/useStore";
 import { useRelayMenuStore } from "@/stores/relayMenuStore";
+import { nip19 } from "nostr-tools";
 
 export default function UserMenu({ children }: any) {
   const loginStore = useStore(useLoginStore, (state) => state);
@@ -39,8 +40,9 @@ export default function UserMenu({ children }: any) {
           <div className="w-48 shrink rounded-md border border-zinc-200 bg-zinc-50 py-2 text-sm font-semibold leading-6 text-zinc-800 shadow-lg ring-1 ring-zinc-200 dark:border-zinc-400/40 dark:bg-zinc-900 dark:text-zinc-300/90 dark:ring-zinc-900/5">
             {[
               {
-                // href: `/u/${nip19.npubEncode(userPublicKey)}`,
-                href: "#",
+                href: `/u/${nip19.npubEncode(
+                  loginStore?.userKeyPair?.publicKey || "",
+                )}`,
                 label: "profile",
               },
               {

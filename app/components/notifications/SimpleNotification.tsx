@@ -1,16 +1,23 @@
-import { Transition } from '@headlessui/react';
-import { XMarkIcon } from '@heroicons/react/20/solid';
-import { CheckCircleIcon } from '@heroicons/react/24/outline';
-import { Fragment } from 'react';
+import { Transition } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/20/solid";
+import { CheckCircleIcon, ExclamationCircleIcon, ExclamationTriangleIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
+import { Fragment } from "react";
 
 interface Props {
+  type: "success" | "error" | "warning" | "info";
   title: string;
   message: string;
   show: boolean;
   setShow: (show: boolean) => void;
 }
 
-export default function SimpleNotification({ title, message, show, setShow }: Props) {
+export default function SimpleNotification({
+  type,
+  title,
+  message,
+  show,
+  setShow,
+}: Props) {
   return (
     <div
       aria-live="assertive"
@@ -30,17 +37,48 @@ export default function SimpleNotification({ title, message, show, setShow }: Pr
           <div className="pointer-events-auto w-full max-w-xs overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 dark:border dark:border-zinc-400 dark:bg-zinc-900">
             <div className="p-4">
               <div className="flex items-start">
-                <div className="flex-shrink-0">
-                  <CheckCircleIcon className="h-6 w-6 text-green-400" aria-hidden="true" />
-                </div>
+                {type === "success" && (
+                  <div className="flex-shrink-0">
+                    <CheckCircleIcon
+                      className="h-6 w-6 text-green-400"
+                      aria-hidden="true"
+                    />
+                  </div>
+                )}
+                {type === "error" && (
+                  <div className="flex-shrink-0">
+                    <ExclamationCircleIcon
+                      className="h-6 w-6 text-red-400"
+                      aria-hidden="true"
+                    />
+                  </div>
+                )}
+                {type === "warning" && (
+                  <div className="flex-shrink-0">
+                    <ExclamationTriangleIcon
+                      className="h-6 w-6 text-yellow-400"
+                      aria-hidden="true"
+                    />
+                  </div>
+                )}
+                {type === "info" && (
+                  <div className="flex-shrink-0">
+                    <InformationCircleIcon
+                      className="h-6 w-6 text-blue-400"
+                      aria-hidden="true"
+                    />
+                  </div>
+                )}
                 <div className="ml-3 w-0 flex-1 pt-0.5">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-300">{title}</p>
+                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-300">
+                    {title}
+                  </p>
                   <p className="mt-1 text-sm text-zinc-500">{message}</p>
                 </div>
                 <div className="ml-4 flex flex-shrink-0">
                   <button
                     type="button"
-                    className="inline-flex rounded-md bg-white dark:bg-zinc-900 text-zinc-400 hover:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2"
+                    className="inline-flex rounded-md bg-white text-zinc-400 hover:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:bg-zinc-900"
                     onClick={() => setShow(false)}
                   >
                     <span className="sr-only">Close</span>
@@ -55,4 +93,3 @@ export default function SimpleNotification({ title, message, show, setShow }: Pr
     </div>
   );
 }
-

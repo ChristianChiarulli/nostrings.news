@@ -42,6 +42,7 @@ export default function PostFilter() {
         pathname.startsWith("/tags") ||
         pathname.startsWith("/from") ||
         pathname.startsWith("/new") ||
+        pathname.startsWith("/u") ||
         pathname.startsWith("/top")) && (
           <input
             type="text"

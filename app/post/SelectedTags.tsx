@@ -1,14 +1,15 @@
+import { PostArticle, PostLink } from "@/types";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
-interface PropTypes {
-  tags: string[];
-  setTags: (tags: string[]) => void;
-}
+type PropTypes = {
+  post: PostLink | PostArticle;
+  setPost: (post: any) => void;
+};
 
-export default function SelectedTags({ tags, setTags }: PropTypes) {
+export default function SelectedTags({ post, setPost }: PropTypes) {
   return (
     <div className="flex gap-x-4 overflow-x-auto">
-      {tags.map((tag) => (
+      {post.tags.map((tag) => (
         <div
           key={tag}
           className="flex items-center gap-x-2 rounded-lg border border-purple-500 px-2 py-1 text-sm font-medium text-gray-700 dark:border-purple-600 dark:text-white"
@@ -16,7 +17,7 @@ export default function SelectedTags({ tags, setTags }: PropTypes) {
           {tag}
           <button
             onClick={() => {
-              setTags(tags.filter((t) => t !== tag));
+              setPost({ ...post, tags: post.tags.filter((t) => t !== tag) });
             }}
           >
             <XMarkIcon

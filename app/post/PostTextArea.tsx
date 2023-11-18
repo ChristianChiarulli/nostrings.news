@@ -1,16 +1,17 @@
 import { Tab } from "@headlessui/react";
 
 import { classNames } from "@/lib/utils";
+import { PostArticle, PostLink } from "@/types";
 
-interface PropTypes {
-  text: string;
-  setText: (text: string) => void;
+type PropTypes = {
+  post: PostLink | PostArticle;
+  setPost: (post: any) => void;
   titleWarning?: boolean;
-}
+};
 
 export default function PostTextArea({
-  text,
-  setText,
+  post,
+  setPost,
   titleWarning = false,
 }: PropTypes) {
   function setupMarkdown(content: string) {
@@ -19,7 +20,7 @@ export default function PostTextArea({
     return result;
   }
 
-  const markdown = setupMarkdown(text);
+  const markdown = setupMarkdown(post.text);
 
   return (
     <div>
@@ -95,8 +96,8 @@ export default function PostTextArea({
                     rows={5}
                     name="comment"
                     id="comment"
-                    onChange={(event) => setText(event.target.value)}
-                    value={text}
+                    onChange={(e) => setPost({ ...post, text: e.target.value })}
+                    value={post.text}
                     className="block w-full rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700 dark:placeholder:text-zinc-500 dark:focus:ring-purple-700 sm:text-sm sm:leading-6"
                   />
                 </div>

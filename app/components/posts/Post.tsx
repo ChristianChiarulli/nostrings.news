@@ -85,7 +85,7 @@ export default function Post({ post }: Props) {
             {getTagValue("w", post.tags)}
           </Link>
         </div>
-        <div className="flex items-center gap-x-1">
+        <div className="flex flex-wrap items-center gap-x-1">
           <span
             className={`text-[.7rem] font-light ${
               addUpZaps(zapReciepts[post?.id], additionalSats[post?.id] || 0) >
@@ -110,10 +110,13 @@ export default function Post({ post }: Props) {
           <span className="text-[.7rem] font-light text-zinc-500 dark:text-zinc-400">
             /
           </span>
-          <span className="cursor-pointer text-[.7rem] font-light text-purple-500/90 hover:underline dark:text-purple-400/90">
+          <Link 
+            href={`/u/${nip19.npubEncode(post.pubkey)}`}
+            className="cursor-pointer text-[.7rem] font-light text-purple-500/90 hover:underline dark:text-purple-400/90">
+            {/* TODO: check for valid nip05 */}
             {(profile && (profile.nip05 || profile.name)) ||
               shortenHash(nip19.npubEncode(post.pubkey))}
-          </span>
+          </Link>
           <span className="text-[.7rem] font-light text-zinc-500 dark:text-zinc-400"></span>
           <span className="text-[.7rem] font-light text-zinc-500 dark:text-zinc-400">
             {dayjs(post.created_at * 1000).fromNow()}

@@ -14,9 +14,9 @@ import {
 import { getTagValue, weblnConnect } from "./utils";
 import { KeyPair, ZapArgs } from "@/types";
 
-const { setProfileEvent, getProfileEvent, addZapReciept } =
+const { setProfileEvent, getProfileEvent, addZapReciept, zapReciepts } =
   useEventStore.getState();
-const { subscribe, subscribePool, pool } = useRelayStore.getState();
+const { subscribe, subscribePool } = useRelayStore.getState();
 const { readRelays } = useRelayStateStore.getState();
 
 export function cacheProfiles(pubkeys: string[]) {
@@ -38,7 +38,6 @@ export function cacheProfiles(pubkeys: string[]) {
 }
 
 export async function cacheZapReciepts(eventId: string) {
-  // console.log("caching zap reciepts");
   const zapRecieptFilter: Filter = {
     kinds: [9735],
     "#e": [eventId],
@@ -55,7 +54,7 @@ export async function cacheZapReciepts(eventId: string) {
 
   const onEvent = (event: Event) => {
     addZapReciept(eventId, event);
-  }
+  };
 
   subscribePool(readRelays, zapRecieptFilter, onEvent, () => {});
 }

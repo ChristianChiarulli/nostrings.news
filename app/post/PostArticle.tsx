@@ -3,7 +3,8 @@
 import { useRouter } from "next/navigation";
 import { Event, getEventHash, getSignature } from "nostr-tools";
 
-import { createUniqueUrl } from "@/lib/utils";
+import { PostArticle } from "@/types";
+import { createUniqueUrl, getTagValue } from "@/lib/utils";
 import useLoginStore from "@/stores/loginStore";
 import usePostStore from "@/stores/postStore";
 import useRelayStateStore from "@/stores/relayStateStore";
@@ -13,28 +14,29 @@ import useStore from "@/stores/useStore";
 import PostTags from "./PostTags";
 import PostTextArea from "./PostTextArea";
 import SelectedTags from "./SelectedTags";
-import validator from "validator";
+import useEventStore from "@/stores/eventStore";
 
-export default function PostLink() {
+export default function PostArticle() {
   const loginStore = useStore(useLoginStore, (state) => state);
-  const postStore = useStore(usePostStore, (state) => state);
+
+  const { postArticle, setPostArticle, clearPostArticle } = usePostStore();
+  const { writeRelays } = useRelayStateStore();
+  const { publishPool } = useRelayStore();
+  const { clearAllEvents } = useEventStore();
 
   const router = useRouter();
 
-  const { writeRelays } = useRelayStateStore();
-  const { publishPool } = useRelayStore();
-
-  const handleTitleChange = async (e: any) => {
-    postStore?.setPostLinkTitle(e.target.value);
-  };
+  if (!loginStore) {
+    return null;
+  }
 
   const validateBeforePublish = () => {
-    if (postStore?.postLinkTitle === "") {
+    if (postArticle.title === "") {
       alert("title cannot be empty");
       return false;
     }
 
-    if (postStore?.postLinkTags.length === 0) {
+    if (postArticle.tags.length === 0) {
       alert("choose at least one tag");
       return false;
     }
@@ -44,17 +46,76 @@ export default function PostLink() {
 
   const handlePublish = async (e: any) => {
     e.preventDefault();
+    console.log("publishing article");
+    console.log(postArticle);
+
     if (!validateBeforePublish()) {
       return;
     }
 
-    const publicKey = loginStore?.userKeyPair.publicKey || "";
-    const secretKey = loginStore?.userKeyPair.secretKey || "";
+    if (!loginStore?.userKeyPair) {
+      alert("login first");
+      return;
+    }
 
-    const newsEventTags = [["title", postStore?.postLinkTitle]];
+    const publicKey = loginStore.userKeyPair.publicKey || "";
+    const secretKey = loginStore.userKeyPair.secretKey || "";
 
-    postStore?.postLinkTags.forEach((tag) => {
-      newsEventTags.push(["t", tag]);
+    const title = postArticle.title;
+    const image = postArticle.image;
+    const summary = postArticle.summary;
+    const text = postArticle.text;
+    const tags = postArticle.tags;
+
+    const articleTags = [
+      ["title", title],
+      ["image", image],
+      ["summary", summary],
+      [
+        "d",
+        `${title}-${createUniqueUrl(
+          `${publicKey}${title}${Math.floor(Date.now() / 1000)}`,
+        )}`,
+      ],
+    ];
+
+    tags.forEach((tag) => {
+      articleTags.push(["t", tag]);
+    });
+
+    let articleEvent: Event = {
+      id: "",
+      sig: "",
+      kind: 30023,
+      created_at: Math.floor(Date.now() / 1000),
+      tags: articleTags,
+      content: text,
+      pubkey: publicKey,
+    };
+
+    articleEvent.id = getEventHash(articleEvent);
+    if (secretKey) {
+      articleEvent.sig = getSignature(articleEvent, secretKey);
+    } else {
+      articleEvent = await window.nostr.signEvent(articleEvent);
+    }
+
+    const newsTags = [
+      ["title", title],
+      ["image", image],
+      ["summary", summary],
+      ["k", `${articleEvent.kind}`],
+      [
+        "a",
+        `${articleEvent.kind}:${publicKey}:${getTagValue(
+          "d",
+          articleEvent.tags,
+        )}`,
+      ],
+    ];
+
+    tags.forEach((tag) => {
+      newsTags.push(["t", tag]);
     });
 
     let newsEvent: Event = {
@@ -62,7 +123,7 @@ export default function PostLink() {
       sig: "",
       kind: 1070,
       created_at: Math.floor(Date.now() / 1000),
-      tags: newsEventTags as [string, string][],
+      tags: newsTags,
       content: "",
       pubkey: publicKey,
     };
@@ -74,73 +135,24 @@ export default function PostLink() {
       newsEvent = await window.nostr.signEvent(newsEvent);
     }
 
-    function isValidUrl(url: string): boolean {
-      if (url === "") {
-        return true;
-      }
-
-      return validator.isURL(url);
-    }
-
-    const handleImageChange = async (e: any) => {
-      postStore?.setPostLinkUrl(e.target.value);
-      if (!isValidUrl(e.target.value)) {
-        postStore?.setErrorUrl("invalid url");
-      } else {
-        postStore?.setErrorUrl("");
-      }
-    };
-
-    let commentEvent: Event | null = null;
-
-    if (postStore?.postLinkText && postStore?.postLinkText !== "") {
-      commentEvent = {
-        id: "",
-        sig: "",
-        kind: 30700,
-        created_at: Math.floor(Date.now() / 1000),
-        tags: [
-          [
-            "d",
-            createUniqueUrl(
-              `${publicKey}${newsEvent.id}${newsEvent.created_at}`,
-            ),
-          ],
-          ["e", newsEvent.id],
-        ],
-        content: postStore?.postLinkText,
-        pubkey: publicKey,
-      };
-      commentEvent.id = getEventHash(commentEvent);
-      if (secretKey) {
-        commentEvent.sig = getSignature(commentEvent, secretKey);
-      } else {
-        commentEvent = await window.nostr.signEvent(commentEvent);
-      }
-    }
-
-    const onCommentEventSeen = (event: Event) => {
+    const onArticleEventSeen = (event: Event) => {
       // TODO: cache event
-      console.log("comment event", event);
-      postStore?.clearPostLink();
-      // TODO: router push to recent
-      router.push("/");
+      console.log("article event", event);
+      publishPool(writeRelays, newsEvent, onNewsEventSeen);
     };
 
     const onNewsEventSeen = (event: Event) => {
-      // TODO: cache event
       console.log("news event", event);
-      if (commentEvent) {
-        publishPool(writeRelays, commentEvent, onCommentEventSeen);
-      } else {
-        console.log("post published");
-        postStore?.clearPostLink();
-        // TODO: router push to recent
-        router.push("/");
-      }
+      clearPostArticle();
+      // TODO:
+      // if there are events cached then add the new event to the cache
+      // if there are no events cached then clear the cache and route
+      // for now we'll just clear the cache and route
+      clearAllEvents();
+      router.push("/new");
     };
 
-    publishPool(writeRelays, newsEvent, onNewsEventSeen);
+    publishPool(writeRelays, articleEvent, onArticleEventSeen);
   };
 
   return (
@@ -157,23 +169,28 @@ export default function PostLink() {
             type="text"
             name="title"
             id="title"
-            onChange={handleTitleChange}
+            value={postArticle.title}
+            onChange={(e) => {
+              setPostArticle({
+                ...postArticle,
+                title: e.target.value,
+              });
+            }}
             className="block w-full rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-purple-500 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700 dark:placeholder:text-zinc-500 dark:focus:ring-purple-700 sm:text-sm sm:leading-6"
             aria-describedby="title"
           />
         </div>
-        {postStore?.postLinkTitle ? (
+        {postArticle.title !== "" ? (
           <div>
-            {80 - postStore?.postLinkTitle.length >= 0 ||
-            postStore?.postLinkTitle.length === 0 ? (
+            {80 - postArticle.title.length >= 0 ||
+            postArticle.title.length === 0 ? (
               <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                {80 - postStore?.postLinkTitle.length} characters remaining
+                {80 - postArticle.title.length} characters remaining
               </p>
             ) : (
               <p className="mt-2 text-sm text-red-500 dark:text-red-400">
                 maximum title length exceeded by
-                {postStore?.postLinkTitle.length &&
-                  postStore?.postLinkTitle.length - 80}
+                {postArticle.title.length && postArticle.title.length - 80}
               </p>
             )}
           </div>
@@ -196,22 +213,26 @@ export default function PostLink() {
             type="text"
             name="image"
             id="image"
-            onChange={handleTitleChange}
+            value={postArticle.image}
+            onChange={(e) => {
+              setPostArticle({
+                ...postArticle,
+                image: e.target.value,
+              });
+            }}
             className="block w-full rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-purple-500 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700 dark:placeholder:text-zinc-500 dark:focus:ring-purple-700 sm:text-sm sm:leading-6"
             aria-describedby="image url"
           />
         </div>
       </div>
 
-      {postStore && (
-        <div className="max-w-lg pt-4">
-          <PostTextArea
-            text={postStore.postLinkText}
-            setText={postStore.setPostLinkText}
-            titleWarning={true}
-          />
-        </div>
-      )}
+      <div className="max-w-lg pt-4">
+        <PostTextArea
+          post={postArticle}
+          setPost={setPostArticle}
+          titleWarning={true}
+        />
+      </div>
 
       <div className="max-w-lg">
         <label
@@ -224,31 +245,17 @@ export default function PostLink() {
           <textarea
             name="summary"
             id="summary"
-            onChange={handleTitleChange}
+            value={postArticle.summary}
+            onChange={(e) => {
+              setPostArticle({
+                ...postArticle,
+                summary: e.target.value,
+              });
+            }}
             className="block w-full rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-purple-500 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700 dark:placeholder:text-zinc-500 dark:focus:ring-purple-700 sm:text-sm sm:leading-6"
             aria-describedby="summary"
           />
         </div>
-        {postStore?.postLinkTitle ? (
-          <div>
-            {80 - postStore?.postLinkTitle.length >= 0 ||
-            postStore?.postLinkTitle.length === 0 ? (
-              <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                {80 - postStore?.postLinkTitle.length} characters remaining
-              </p>
-            ) : (
-              <p className="mt-2 text-sm text-red-500 dark:text-red-400">
-                maximum title length exceeded by
-                {postStore?.postLinkTitle.length &&
-                  postStore?.postLinkTitle.length - 80}
-              </p>
-            )}
-          </div>
-        ) : (
-          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-            80 characters remaining
-          </p>
-        )}
       </div>
 
       <div className="max-w-lg">
@@ -258,24 +265,14 @@ export default function PostLink() {
         >
           tags
         </label>
-        {postStore?.postLinkTags && (
-          <PostTags
-            tags={postStore?.postLinkTags}
-            setTags={postStore?.setPostLinkTags}
-          />
-        )}
+        <PostTags post={postArticle} setPost={setPostArticle} />
       </div>
 
       <div className="mt-4 flex gap-x-4">
         <span className="my-2 flex items-center gap-x-2 rounded-lg text-sm font-medium dark:text-gray-300">
           Selected:
         </span>
-        {postStore?.postLinkTags && (
-          <SelectedTags
-            tags={postStore?.postLinkTags}
-            setTags={postStore?.setPostLinkTags}
-          />
-        )}
+        <SelectedTags post={postArticle} setPost={setPostArticle} />
       </div>
 
       <button

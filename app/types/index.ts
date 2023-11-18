@@ -33,3 +33,20 @@ export type ZapArgs = {
   relays: string[];
   comment: string;
 };
+
+export type PostLink = {
+  title: string;
+  url: string;
+  urlError: string;
+  tags: string[];
+  text: string;
+  showCommentSection: boolean;
+};
+
+export type PostArticle = {
+  title: string;
+  image: string;
+  summary: string;
+  tags: string[];
+  text: string;
+};

@@ -115,7 +115,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="flex w-full flex-col items-center justify-center pb-24 pt-10">
+    <div className="flex w-full flex-col items-center justify-center px-4 pb-24 pt-10 sm:px-0">
       <form className="w-full max-w-4xl" onSubmit={handleSubmit}>
         <div className="space-y-12">
           <div className="border-b border-zinc-900/10 pb-12 dark:border-zinc-700">
@@ -127,40 +127,38 @@ export default function Settings() {
                 <ArrowPathIcon className="h-4 w-4 text-zinc-900 dark:text-zinc-400" />
               </button>
             </div>
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              <div className="col-span-full">
-                <div className="mt-2 flex items-center gap-x-3">
-                  {loginStore?.userKeyPair.publicKey ? (
-                    <Avatar
-                      picture={profile.picture}
-                      pubkey={loginStore?.userKeyPair.publicKey}
-                      className="inline-block h-12 w-12"
-                    />
-                  ) : (
-                    <UserCircleIcon
-                      className="h-12 w-12 text-zinc-300 dark:text-zinc-600"
-                      aria-hidden="true"
-                    />
-                  )}
+            <div className="mt-10 flex flex-col gap-x-6 gap-y-8">
+              <div className="mt-2 flex items-center gap-x-3">
+                {loginStore?.userKeyPair.publicKey ? (
+                  <Avatar
+                    picture={profile.picture}
+                    pubkey={loginStore?.userKeyPair.publicKey}
+                    className="inline-block h-12 w-12"
+                  />
+                ) : (
+                  <UserCircleIcon
+                    className="h-12 w-12 text-zinc-300 dark:text-zinc-600"
+                    aria-hidden="true"
+                  />
+                )}
 
-                  <div className="flex w-full max-w-sm rounded-md shadow-sm ring-1 ring-inset ring-zinc-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-purple-600 dark:ring-zinc-600">
-                    <input
-                      name="picture"
-                      type="text"
-                      className="block w-full rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-600 sm:text-sm sm:leading-6"
-                      placeholder="image URL"
-                      value={profile.picture}
-                      onChange={(e) => {
-                        setProfile({
-                          ...profile,
-                          picture: e.target.value,
-                        });
-                      }}
-                    />
-                  </div>
+                <div className="flex w-full max-w-sm rounded-md shadow-sm ring-1 ring-inset ring-zinc-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-purple-600 dark:ring-zinc-600">
+                  <input
+                    name="picture"
+                    type="text"
+                    className="block w-full rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-600 sm:text-sm sm:leading-6"
+                    placeholder="image URL"
+                    value={profile.picture}
+                    onChange={(e) => {
+                      setProfile({
+                        ...profile,
+                        picture: e.target.value,
+                      });
+                    }}
+                  />
                 </div>
               </div>
-              <div className="sm:col-span-4">
+              <div>
                 <label
                   htmlFor="username"
                   className="block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-100"
@@ -186,8 +184,7 @@ export default function Settings() {
                   </div>
                 </div>
               </div>
-
-              <div className="sm:col-span-4">
+              <div>
                 <label
                   htmlFor="about"
                   className="block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-100"
@@ -213,7 +210,7 @@ export default function Settings() {
                 </div>
               </div>
 
-              <div className="sm:col-span-4">
+              <div>
                 <label
                   htmlFor="lud16"
                   className="block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-100"
@@ -240,7 +237,7 @@ export default function Settings() {
                 </div>
               </div>
 
-              <div className="sm:col-span-4">
+              <div>
                 <label
                   htmlFor="nip05"
                   className="block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-100"
@@ -267,7 +264,7 @@ export default function Settings() {
                 </div>
               </div>
 
-              <div className="sm:col-span-4">
+              <div>
                 <label
                   htmlFor="website"
                   className="block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-100"
@@ -307,6 +304,7 @@ export default function Settings() {
         </div>
       </form>
       <SimpleNotification
+        type="success"
         title="success"
         message={"profile updated"}
         show={showNotification}

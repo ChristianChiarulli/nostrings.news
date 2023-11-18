@@ -68,7 +68,7 @@ function generateUniqueHash(data: string, length: number): string {
 }
 
 export function createUniqueUrl(data: string): string {
-  const uniqueHash = generateUniqueHash(data, 12);
+  const uniqueHash = generateUniqueHash(data, 14);
   return uniqueHash;
 }
 

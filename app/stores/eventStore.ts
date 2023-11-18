@@ -9,7 +9,6 @@ export interface EventState {
   getNewPost: () => Event | null;
   removeNewPost: (id: string) => void;
   clearNewPosts: () => void;
-
   newPostLimit: number;
   setNewPostLimit: (limit: number) => void;
 
@@ -19,7 +18,6 @@ export interface EventState {
   getTaggedPosts: (tag: string) => Event[];
   removeTaggedPost: (id: string) => void;
   clearTaggedPosts: () => void;
-
   taggedPostLimit: number;
   setTaggedPostLimit: (limit: number) => void;
 
@@ -29,7 +27,6 @@ export interface EventState {
   getSitePosts: (site: string) => Event[];
   removeSitePost: (id: string) => void;
   clearSitePosts: () => void;
-
   sitePostLimit: number;
   setSitePostLimit: (limit: number) => void;
 
@@ -44,6 +41,16 @@ export interface EventState {
   profileEvent: Record<string, Event | null>;
   setProfileEvent: (pubkey: string, userEvent: Event) => void;
   getProfileEvent: (pubkey: string) => Event | null;
+
+  userPosts: Record<string, Event[]>;
+  addUserPost: (site: string, event: Event) => void;
+  setUserPosts: (site: string, events: Event[]) => void;
+  getUserPosts: (site: string) => Event[];
+  removeUserPost: (id: string) => void;
+  clearUserPosts: () => void;
+  userPostLimit: number;
+  setUserPostLimit: (limit: number) => void;
+
 
   clearAllEvents: () => void;
 
@@ -157,6 +164,33 @@ const useEventStore = create<EventState>()(
         }),
       getProfileEvent: (pubkey) => get().profileEvent[pubkey] ?? null,
 
+      userPosts: {},
+      addUserPost: (site, event) =>
+        set((prev) => ({
+          userPosts: {
+            ...prev.userPosts,
+            [site]: [...(prev.userPosts[site] ?? []), event],
+          },
+        })),
+      setUserPosts: (site, events) =>
+        set((prev) => ({
+          userPosts: { ...prev.userPosts, [site]: events },
+        })),
+      getUserPosts: (site) => get().userPosts[site] ?? [],
+      clearUserPosts: () => set({ userPosts: {} }),
+      removeUserPost: (id) =>
+        set((prev) => ({
+          userPosts: Object.fromEntries(
+            Object.entries(prev.userPosts).map(([site, events]) => [
+              site,
+              events.filter((e) => e.id !== id),
+            ]),
+          ),
+        })),
+      userPostLimit: 5,
+      setUserPostLimit: (limit) => set({ userPostLimit: limit }),
+
+
       search: "",
       setSearch: (search) => set({ search }),
       getSearch: () => get().search,
@@ -166,9 +200,14 @@ const useEventStore = create<EventState>()(
           newPosts: [],
           taggedPosts: {},
           sitePosts: {},
-          zapReciepts: {},
+          userPosts: {},
+          // zapReciepts: {},
           cachedPost: null,
-          profileEvent: {},
+          // profileEvent: {},
+          newPostLimit: 5,
+          taggedPostLimit: 5,
+          sitePostLimit: 5,
+          userPostLimit: 5,
         });
       },
     }),

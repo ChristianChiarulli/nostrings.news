@@ -4,14 +4,16 @@ import { useState } from "react";
 
 import { POSSIBLE_TAGS } from "@/lib/constants";
 import { classNames } from "@/lib/utils";
+import { PostArticle, PostLink } from "@/types";
 
-interface PropTypes {
-  tags: string[];
-  setTags: (tags: string[]) => void;
-}
+type PropTypes = {
+  post: PostLink | PostArticle;
+  setPost: (post: any) => void;
+};
 
-export default function PostTags({ tags, setTags }: PropTypes) {
+export default function PostTags({ post, setPost }: PropTypes) {
   const [query, setQuery] = useState("");
+  const [blurTimeoutId, setBlurTimeoutId] = useState<number | null>(null);
 
   const possibleTagsSansAll = POSSIBLE_TAGS.filter((tag) => {
     if (tag === "all") return false;
@@ -27,17 +29,33 @@ export default function PostTags({ tags, setTags }: PropTypes) {
         });
 
   const handleTagChange = (newTag: string) => {
+    const tags = post.tags;
     if (tags.includes(newTag)) {
       // Remove tag if it's already selected
       const newTags = tags.filter((tag) => tag !== newTag);
-      setTags(newTags);
+      setPost({ ...post, tags: newTags });
     } else if (tags.length < 5) {
       // Add new tag if less than 5 are selected
       const newTags = [...tags, newTag];
-      setTags(newTags);
+      setPost({ ...post, tags: newTags });
     } else if (tags.length === 5) {
       alert("You can only select up to 5 tags");
     }
+  };
+
+  const handleInputBlur = () => {
+    // Clear any existing timeouts
+    if (blurTimeoutId) {
+      clearTimeout(blurTimeoutId);
+      setBlurTimeoutId(null);
+    }
+
+    // Set a new timeout
+    const newTimeoutId = setTimeout(() => {
+      setQuery(""); // Clear the query after a delay
+    }, 300) as unknown as number; // Cast the timeout ID to a number
+
+    setBlurTimeoutId(newTimeoutId);
   };
 
   return (
@@ -51,7 +69,7 @@ export default function PostTags({ tags, setTags }: PropTypes) {
             id="tags"
             className="block w-full rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-purple-500 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700 dark:placeholder:text-zinc-500 dark:focus:ring-purple-700 sm:text-sm sm:leading-6"
             onChange={(event) => setQuery(event.target.value)}
-            onBlur={() => setQuery("")}
+            onBlur={handleInputBlur}
           />
           <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
             <ChevronUpDownIcon
@@ -86,7 +104,7 @@ export default function PostTags({ tags, setTags }: PropTypes) {
                         {tag}
                       </span>
 
-                      {tags.includes(tag) && (
+                      {post.tags.includes(tag) && (
                         <span
                           className={classNames(
                             "absolute inset-y-0 right-0 flex items-center pr-4",

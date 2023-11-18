@@ -13,53 +13,49 @@ import Post from "@/components/posts/Post";
 import { useSearchParams } from "next/navigation";
 import SimpleNotification from "../notifications/SimpleNotification";
 
-export default function SitePosts() {
+type Props = {
+  pubkey: string;
+};
+
+export default function UserPosts({ pubkey }: Props) {
   const { readRelays } = useRelayStateStore();
   const { subscribePool } = useRelayStore();
-  const { sitePosts, addSitePost, sitePostLimit, setSitePostLimit, zapReciepts } =
-    useEventStore();
+  const {
+    userPosts,
+    addUserPost,
+    userPostLimit,
+    setUserPostLimit,
+    zapReciepts,
+  } = useEventStore();
   const [showNotification, setShowNotification] = useState(false);
 
   const searchParams = useSearchParams();
   const filter = searchParams.get("filter");
-  const site = searchParams.get("site") || "";
-
-  function getSitesArrayFromURL(site: string | null) {
-    if (site) {
-      if (site.includes(",")) {
-        return site.split(",");
-      } else {
-        return [site];
-      }
-    } else {
-      return [];
-    }
-  }
 
   const cacheRecentEvents = () => {
     const newPostFilter: Filter = {
       kinds: [1070],
       limit: 6,
-      "#w": getSitesArrayFromURL(site),
+      authors: [pubkey],
     };
 
-    if (sitePosts && sitePosts[site]) {
-      const lastEvent = sitePosts[site].slice(-1)[0];
+    if (userPosts && userPosts[pubkey]) {
+      const lastEvent = userPosts[pubkey].slice(-1)[0];
       newPostFilter.until = lastEvent.created_at - 10;
     }
 
     const pubkeys = new Set<string>();
 
     const onEvent = (event: Event) => {
-      console.log(event);
-      addSitePost(site, event);
+      // console.log(event);
+      addUserPost(pubkey, event);
       if (!pubkeys.has(event.pubkey)) {
         cacheProfiles([event.pubkey]);
       }
       if (!zapReciepts[event.id]) {
         cacheZapReciepts(event.id);
       }
-      
+
       pubkeys.add(event.pubkey);
     };
 
@@ -67,32 +63,32 @@ export default function SitePosts() {
   };
 
   useEffect(() => {
-    if (sitePosts && sitePosts[site] && sitePosts[site].length > 0) {
+    if (userPosts && userPosts[pubkey] && userPosts[pubkey].length > 0) {
       return;
     }
     cacheRecentEvents();
   }, [readRelays]);
 
   const increaseLimit = () => {
-    if (sitePostLimit - sitePosts[site]?.length >= 5) {
+    if (userPostLimit - userPosts[pubkey]?.length >= 5) {
       setShowNotification(true);
       setTimeout(() => {
         setShowNotification(false);
       }, 2000);
       return;
     }
-    setSitePostLimit(sitePostLimit + 5);
+    setUserPostLimit(userPostLimit + 5);
 
-    if (sitePostLimit > sitePosts[site]?.length * 0.7) {
+    if (userPostLimit > userPosts[pubkey]?.length * 0.7) {
       cacheRecentEvents();
     }
   };
 
   return (
     <>
-      {sitePosts &&
-        filterPosts(filter, sitePosts[site])
-          ?.slice(0, sitePostLimit)
+      {userPosts &&
+        filterPosts(filter, userPosts[pubkey])
+          ?.slice(0, userPostLimit)
           .map((post, idx) => <Post post={post} key={idx} />)}
 
       <div className="flex w-full justify-center py-8">

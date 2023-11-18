@@ -15,25 +15,31 @@ import useStore from "@/stores/useStore";
 import PostTags from "./PostTags";
 import PostTextArea from "./PostTextArea";
 import SelectedTags from "./SelectedTags";
+import { PostLink } from "@/types";
+import { useEffect, useState } from "react";
+import useEventStore from "@/stores/eventStore";
 
 export default function PostLink() {
   const loginStore = useStore(useLoginStore, (state) => state);
-  const postStore = useStore(usePostStore, (state) => state);
+  // const postStore = useStore(usePostStore, (state) => state);
 
   const router = useRouter();
 
   const { writeRelays } = useRelayStateStore();
   const { publishPool } = useRelayStore();
+  const { postLink, setPostLink, clearPostLink } = usePostStore();
+  const { clearAllEvents } = useEventStore();
+
+  if (!loginStore) {
+    return null;
+  }
 
   const handleShowCommentSection = (e: any) => {
     e.preventDefault();
-    postStore?.setPostLinkShowCommentSection(
-      !postStore?.postLinkShowCommentSection,
-    );
-  };
-
-  const handleTitleChange = async (e: any) => {
-    postStore?.setPostLinkTitle(e.target.value);
+    setPostLink({
+      ...postLink,
+      showCommentSection: !postLink.showCommentSection,
+    });
   };
 
   function isValidUrl(url: string): boolean {
@@ -45,31 +51,43 @@ export default function PostLink() {
   }
 
   const handleUrlChange = async (e: any) => {
-    postStore?.setPostLinkUrl(e.target.value);
+    setPostLink({
+      ...postLink,
+      url: e.target.value,
+    });
+
     if (!isValidUrl(e.target.value)) {
-      postStore?.setErrorUrl("invalid url");
+      setPostLink({
+        ...postLink,
+        url: e.target.value,
+        urlError: "invalid url",
+      });
     } else {
-      postStore?.setErrorUrl("");
+      setPostLink({
+        ...postLink,
+        url: e.target.value,
+        urlError: "",
+      });
     }
   };
 
   const validateBeforePublish = () => {
-    if (postStore?.postLinkTitle === "") {
+    if (postLink.title === "") {
       alert("title cannot be empty");
       return false;
     }
 
-    if (postStore?.postLinkUrl === "") {
+    if (postLink.url === "") {
       alert("url cannot be empty");
       return false;
     }
 
-    if (!isValidUrl(postStore?.postLinkUrl || "")) {
+    if (!isValidUrl(postLink.url || "")) {
       alert("invalid url");
       return false;
     }
 
-    if (postStore?.postLinkTags.length === 0) {
+    if (postLink.tags.length === 0) {
       alert("choose at least one tag");
       return false;
     }
@@ -83,21 +101,31 @@ export default function PostLink() {
       return;
     }
 
-    const publicKey = loginStore?.userKeyPair.publicKey || "";
-    const secretKey = loginStore?.userKeyPair.secretKey || "";
+    if (!loginStore?.userKeyPair) {
+      alert("login first");
+      return;
+    }
+
+    const publicKey = loginStore.userKeyPair.publicKey || "";
+    const secretKey = loginStore.userKeyPair.secretKey || "";
+
+    const title = postLink.title;
+    const url = postLink.url;
+    const comment = postLink.text;
+    const tags = postLink.tags;
 
     const newsEventTags = [
-      ["title", postStore?.postLinkTitle],
-      ["u", postStore?.postLinkUrl],
+      ["title", title],
+      ["u", url],
     ];
 
-    const website = getDomain(postStore?.postLinkUrl || "");
+    const website = getDomain(url || "");
 
     if (website) {
       newsEventTags.push(["w", website]);
     }
 
-    postStore?.postLinkTags.forEach((tag) => {
+    tags.forEach((tag) => {
       newsEventTags.push(["t", tag]);
     });
 
@@ -106,7 +134,7 @@ export default function PostLink() {
       sig: "",
       kind: 1070,
       created_at: Math.floor(Date.now() / 1000),
-      tags: newsEventTags as [string, string][],
+      tags: newsEventTags,
       content: "",
       pubkey: publicKey,
     };
@@ -120,22 +148,14 @@ export default function PostLink() {
 
     let commentEvent: Event | null = null;
 
-    if (postStore?.postLinkText && postStore?.postLinkText !== "") {
+    if (comment !== "") {
       commentEvent = {
         id: "",
         sig: "",
-        kind: 30700,
+        kind: 1,
         created_at: Math.floor(Date.now() / 1000),
-        tags: [
-          [
-            "d",
-            createUniqueUrl(
-              `${publicKey}${newsEvent.id}${newsEvent.created_at}`,
-            ),
-          ],
-          ["e", newsEvent.id],
-        ],
-        content: postStore?.postLinkText,
+        tags: [["e", newsEvent.id]],
+        content: comment,
         pubkey: publicKey,
       };
       commentEvent.id = getEventHash(commentEvent);
@@ -149,9 +169,9 @@ export default function PostLink() {
     const onCommentEventSeen = (event: Event) => {
       // TODO: cache event
       console.log("comment event", event);
-      postStore?.clearPostLink();
-      // TODO: router push to recent
-      router.push("/");
+      clearPostLink();
+      clearAllEvents();
+      router.push("/new");
     };
 
     const onNewsEventSeen = (event: Event) => {
@@ -161,9 +181,9 @@ export default function PostLink() {
         publishPool(writeRelays, commentEvent, onCommentEventSeen);
       } else {
         console.log("post published");
-        postStore?.clearPostLink();
-        // TODO: router push to recent
-        router.push("/");
+        clearPostLink();
+        clearAllEvents();
+        router.push("/new");
       }
     };
 
@@ -184,24 +204,27 @@ export default function PostLink() {
             type="text"
             name="title"
             id="title"
-            // value={postStore?.postLinkTitle || ""}
-            onChange={handleTitleChange}
+            onChange={(e) => {
+              setPostLink({
+                ...postLink,
+                title: e.target.value,
+              });
+            }}
+            value={postLink.title}
             className="block w-full rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-purple-500 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700 dark:placeholder:text-zinc-500 dark:focus:ring-purple-700 sm:text-sm sm:leading-6"
             aria-describedby="title"
           />
         </div>
-        {postStore?.postLinkTitle ? (
+        {postLink.title !== "" ? (
           <div>
-            {80 - postStore?.postLinkTitle.length >= 0 ||
-            postStore?.postLinkTitle.length === 0 ? (
+            {80 - postLink.title.length >= 0 || postLink.title.length === 0 ? (
               <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                {80 - postStore?.postLinkTitle.length} characters remaining
+                {80 - postLink.title.length} characters remaining
               </p>
             ) : (
               <p className="mt-2 text-sm text-red-500 dark:text-red-400">
-                maximum title length exceeded by
-                {postStore?.postLinkTitle.length &&
-                  postStore?.postLinkTitle.length - 80}
+                maximum title length exceeded by{" "}
+                {postLink.title.length && postLink.title.length - 80}
               </p>
             )}
           </div>
@@ -223,15 +246,15 @@ export default function PostLink() {
             type="text"
             name="title"
             id="title"
-            // value={postStore?.postLinkUrl || ""}
             onChange={handleUrlChange}
+            value={postLink.url}
             className="block w-full rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-purple-500 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700 dark:placeholder:text-zinc-500 dark:focus:ring-purple-700 sm:text-sm sm:leading-6"
             aria-describedby="title"
           />
         </div>
-        {postStore?.errorUrl ? (
+        {postLink.urlError ? (
           <p className="mt-2 text-sm text-red-500 dark:text-red-400">
-            {postStore?.errorUrl}
+            {postLink.urlError}
           </p>
         ) : null}
       </div>
@@ -243,49 +266,36 @@ export default function PostLink() {
         >
           tags
         </label>
-        {postStore?.postLinkTags && (
-          <PostTags
-            tags={postStore?.postLinkTags}
-            setTags={postStore?.setPostLinkTags}
-          />
-        )}
+        <PostTags post={postLink} setPost={setPostLink} />
       </div>
 
       <div className="mt-4 flex gap-x-4">
         <span className="my-2 flex items-center gap-x-2 rounded-lg text-sm font-medium dark:text-gray-300">
           Selected:
         </span>
-        {postStore?.postLinkTags && (
-          <SelectedTags
-            tags={postStore?.postLinkTags}
-            setTags={postStore?.setPostLinkTags}
-          />
-        )}
+        <SelectedTags post={postLink} setPost={setPostLink} />
       </div>
 
-      <div className="flex items-center justify-between">
-        <button
-          type="button"
-          className="inline-flex items-center rounded-md border border-transparent text-sm font-medium text-white shadow-sm"
-          onClick={handleShowCommentSection}
-        >
-          {postStore?.postLinkShowCommentSection ? (
-            <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-          ) : (
-            <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
-          )}
-          {postStore?.postLinkShowCommentSection ? "hide" : "add"} comment
-        </button>
-      </div>
-
-      {postStore?.postLinkShowCommentSection && postStore.setPostLinkText && (
-        <div className="max-w-lg pt-4">
-          <PostTextArea
-            text={postStore.postLinkText}
-            setText={postStore.setPostLinkText}
-          />
-        </div>
-      )}
+      {/* <div className="flex items-center justify-between"> */}
+      {/*   <button */}
+      {/*     type="button" */}
+      {/*     className="inline-flex items-center rounded-md border border-transparent text-sm font-medium text-white shadow-sm" */}
+      {/*     onClick={handleShowCommentSection} */}
+      {/*   > */}
+      {/*     {postLink.showCommentSection ? ( */}
+      {/*       <ChevronDownIcon className="h-5 w-5" aria-hidden="true" /> */}
+      {/*     ) : ( */}
+      {/*       <ChevronRightIcon className="h-5 w-5" aria-hidden="true" /> */}
+      {/*     )} */}
+      {/*     {postLink.showCommentSection ? "hide" : "add"} comment */}
+      {/*   </button> */}
+      {/* </div> */}
+      {/**/}
+      {/* {postLink.showCommentSection && ( */}
+      {/*   <div className="max-w-lg pt-4"> */}
+      {/*     <PostTextArea post={postLink} setPost={setPostLink} /> */}
+      {/*   </div> */}
+      {/* )} */}
 
       <button
         className="flex max-w-[4rem] items-center justify-center gap-x-2 rounded-lg bg-purple-500 px-3 py-2 text-sm font-medium text-white hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-500"
