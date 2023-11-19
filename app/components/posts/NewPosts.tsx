@@ -84,11 +84,6 @@ export default function NewPosts() {
     }
   };
 
-  useEffect(() => {
-    console.log("newPostLimit", newPostLimit);
-    console.log("newPosts length", newPosts.length);
-  }, [newPostLimit]);
-
   return (
     <>
       {filterPosts(filter, newPosts)
@@ -98,7 +93,8 @@ export default function NewPosts() {
         <div className="flex w-full justify-center py-8">
           <button
             onClick={() => increaseLimit()}
-            className="rounded-md bg-purple-500/90 px-4 py-2 text-sm text-white hover:bg-purple-500 dark:bg-purple-600/90 dark:text-zinc-200 dark:hover:bg-purple-600"
+            className="rounded-lg border dark:border-zinc-700 border-zinc-300 shadow-lg shadow-black/5 px-3 py-2 font-mono text-zinc-600 hover:text-zinc-500 dark:text-zinc-200 dark:hover:text-zinc-100"
+            // className="rounded-lg border border-zinc-400 px-1 font-mono text-base text-zinc-400 hover:text-zinc-300"
           >
             more
           </button>

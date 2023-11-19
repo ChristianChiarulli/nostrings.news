@@ -13,7 +13,7 @@ export default function PostButton() {
       {loginStore?.userKeyPair.publicKey ? (
         <Link
           href="/post"
-          className="rounded-xl border px-2 py-1 text-sm dark:border-zinc-700 dark:text-white"
+          className="rounded-lg border font-mono px-2 py-1 text-sm dark:border-zinc-700 dark:text-white"
         >
           post
         </Link>

@@ -1,3 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+.prose img {
+    display: none; /* This will hide all images */
+}

@@ -15,6 +15,7 @@ import { utils } from "lnurl-pay";
 import { bech32 } from "bech32";
 import { useRouter } from "next/navigation";
 
+// TODO: Link middleware to handle login
 export default function Settings() {
   const router = useRouter();
   const loginStore = useStore(useLoginStore, (state) => state);

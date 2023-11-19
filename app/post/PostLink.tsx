@@ -1,27 +1,22 @@
 "use client";
 
-import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import { useRouter } from "next/navigation";
 import { Event, getEventHash, getSignature } from "nostr-tools";
 import validator from "validator";
 
-import { createUniqueUrl, getDomain } from "@/lib/utils";
+import { getDomain } from "@/lib/utils";
 import useLoginStore from "@/stores/loginStore";
 import usePostStore from "@/stores/postStore";
 import useRelayStateStore from "@/stores/relayStateStore";
 import useRelayStore from "@/stores/relayStore";
-import useStore from "@/stores/useStore";
 
 import PostTags from "./PostTags";
-import PostTextArea from "./PostTextArea";
 import SelectedTags from "./SelectedTags";
 import { PostLink } from "@/types";
-import { useEffect, useState } from "react";
 import useEventStore from "@/stores/eventStore";
 
 export default function PostLink() {
-  const loginStore = useStore(useLoginStore, (state) => state);
-  // const postStore = useStore(usePostStore, (state) => state);
+  const loginStore = useLoginStore();
 
   const router = useRouter();
 
@@ -29,18 +24,6 @@ export default function PostLink() {
   const { publishPool } = useRelayStore();
   const { postLink, setPostLink, clearPostLink } = usePostStore();
   const { clearAllEvents } = useEventStore();
-
-  if (!loginStore) {
-    return null;
-  }
-
-  const handleShowCommentSection = (e: any) => {
-    e.preventDefault();
-    setPostLink({
-      ...postLink,
-      showCommentSection: !postLink.showCommentSection,
-    });
-  };
 
   function isValidUrl(url: string): boolean {
     if (url === "") {
@@ -111,7 +94,6 @@ export default function PostLink() {
 
     const title = postLink.title;
     const url = postLink.url;
-    const comment = postLink.text;
     const tags = postLink.tags;
 
     const newsEventTags = [
@@ -146,45 +128,13 @@ export default function PostLink() {
       newsEvent = await window.nostr.signEvent(newsEvent);
     }
 
-    let commentEvent: Event | null = null;
-
-    if (comment !== "") {
-      commentEvent = {
-        id: "",
-        sig: "",
-        kind: 1,
-        created_at: Math.floor(Date.now() / 1000),
-        tags: [["e", newsEvent.id]],
-        content: comment,
-        pubkey: publicKey,
-      };
-      commentEvent.id = getEventHash(commentEvent);
-      if (secretKey) {
-        commentEvent.sig = getSignature(commentEvent, secretKey);
-      } else {
-        commentEvent = await window.nostr.signEvent(commentEvent);
-      }
-    }
-
-    const onCommentEventSeen = (event: Event) => {
-      // TODO: cache event
-      console.log("comment event", event);
-      clearPostLink();
-      clearAllEvents();
-      router.push("/new");
-    };
-
     const onNewsEventSeen = (event: Event) => {
       // TODO: cache event
       console.log("news event", event);
-      if (commentEvent) {
-        publishPool(writeRelays, commentEvent, onCommentEventSeen);
-      } else {
-        console.log("post published");
-        clearPostLink();
-        clearAllEvents();
-        router.push("/new");
-      }
+      console.log("post published");
+      clearPostLink();
+      clearAllEvents();
+      router.push("/new");
     };
 
     publishPool(writeRelays, newsEvent, onNewsEventSeen);

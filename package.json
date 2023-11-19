@@ -16,6 +16,7 @@
     "@bitcoin-design/bitcoin-icons-react": "^0.1.10",
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.18",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.7",
     "bech32": "^2.0.0",
     "bolt11": "^1.4.1",
@@ -33,6 +34,7 @@
     "numeral": "^2.0.6",
     "react": "^18",
     "react-dom": "^18",
+    "react-youtube": "^10.1.0",
     "use-long-press": "^3.2.0",
     "validator": "^13.11.0",
     "zustand": "^4.4.6"

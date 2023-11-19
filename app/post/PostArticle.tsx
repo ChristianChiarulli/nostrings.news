@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { Event, getEventHash, getSignature } from "nostr-tools";
 
 import { PostArticle } from "@/types";
-import { createUniqueUrl, getTagValue } from "@/lib/utils";
 import useLoginStore from "@/stores/loginStore";
 import usePostStore from "@/stores/postStore";
 import useRelayStateStore from "@/stores/relayStateStore";
@@ -17,7 +16,8 @@ import SelectedTags from "./SelectedTags";
 import useEventStore from "@/stores/eventStore";
 
 export default function PostArticle() {
-  const loginStore = useStore(useLoginStore, (state) => state);
+  // const loginStore = useStore(useLoginStore, (state) => state);
+  const loginStore = useLoginStore();
 
   const { postArticle, setPostArticle, clearPostArticle } = usePostStore();
   const { writeRelays } = useRelayStateStore();
@@ -26,9 +26,9 @@ export default function PostArticle() {
 
   const router = useRouter();
 
-  if (!loginStore) {
-    return null;
-  }
+  // if (!loginStore) {
+  //   return <div className="min-h-screen">login first</div>;
+  // }
 
   const validateBeforePublish = () => {
     if (postArticle.title === "") {
@@ -63,56 +63,14 @@ export default function PostArticle() {
 
     const title = postArticle.title;
     const image = postArticle.image;
-    const summary = postArticle.summary;
     const text = postArticle.text;
     const tags = postArticle.tags;
 
-    const articleTags = [
-      ["title", title],
-      ["image", image],
-      ["summary", summary],
-      [
-        "d",
-        `${title}-${createUniqueUrl(
-          `${publicKey}${title}${Math.floor(Date.now() / 1000)}`,
-        )}`,
-      ],
-    ];
+    const newsTags = [["title", title]];
 
-    tags.forEach((tag) => {
-      articleTags.push(["t", tag]);
-    });
-
-    let articleEvent: Event = {
-      id: "",
-      sig: "",
-      kind: 30023,
-      created_at: Math.floor(Date.now() / 1000),
-      tags: articleTags,
-      content: text,
-      pubkey: publicKey,
-    };
-
-    articleEvent.id = getEventHash(articleEvent);
-    if (secretKey) {
-      articleEvent.sig = getSignature(articleEvent, secretKey);
-    } else {
-      articleEvent = await window.nostr.signEvent(articleEvent);
+    if (image) {
+      newsTags.push(["image", image]);
     }
-
-    const newsTags = [
-      ["title", title],
-      ["image", image],
-      ["summary", summary],
-      ["k", `${articleEvent.kind}`],
-      [
-        "a",
-        `${articleEvent.kind}:${publicKey}:${getTagValue(
-          "d",
-          articleEvent.tags,
-        )}`,
-      ],
-    ];
 
     tags.forEach((tag) => {
       newsTags.push(["t", tag]);
@@ -124,7 +82,7 @@ export default function PostArticle() {
       kind: 1070,
       created_at: Math.floor(Date.now() / 1000),
       tags: newsTags,
-      content: "",
+      content: text,
       pubkey: publicKey,
     };
 
@@ -134,12 +92,6 @@ export default function PostArticle() {
     } else {
       newsEvent = await window.nostr.signEvent(newsEvent);
     }
-
-    const onArticleEventSeen = (event: Event) => {
-      // TODO: cache event
-      console.log("article event", event);
-      publishPool(writeRelays, newsEvent, onNewsEventSeen);
-    };
 
     const onNewsEventSeen = (event: Event) => {
       console.log("news event", event);
@@ -152,7 +104,7 @@ export default function PostArticle() {
       router.push("/new");
     };
 
-    publishPool(writeRelays, articleEvent, onArticleEventSeen);
+    publishPool(writeRelays, newsEvent, onNewsEventSeen);
   };
 
   return (
@@ -226,36 +178,19 @@ export default function PostArticle() {
         </div>
       </div>
 
-      <div className="max-w-lg pt-4">
+      <div className="max-w-lg">
+        <label
+          htmlFor="title"
+          className="block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-100"
+        >
+          content
+        </label>
+
         <PostTextArea
           post={postArticle}
           setPost={setPostArticle}
           titleWarning={true}
         />
-      </div>
-
-      <div className="max-w-lg">
-        <label
-          htmlFor="summary"
-          className="block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-100"
-        >
-          summary
-        </label>
-        <div className="mt-2">
-          <textarea
-            name="summary"
-            id="summary"
-            value={postArticle.summary}
-            onChange={(e) => {
-              setPostArticle({
-                ...postArticle,
-                summary: e.target.value,
-              });
-            }}
-            className="block w-full rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-purple-500 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700 dark:placeholder:text-zinc-500 dark:focus:ring-purple-700 sm:text-sm sm:leading-6"
-            aria-describedby="summary"
-          />
-        </div>
       </div>
 
       <div className="max-w-lg">

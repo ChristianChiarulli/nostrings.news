@@ -1,28 +1,29 @@
 import {
   GlobeAltIcon,
   LinkIcon,
-  NewspaperIcon,
+  UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
 import { classNames } from "@/lib/utils";
 
-import PostArticle from "./PostArticle";
-import PostLink from "./PostLink";
+const PostArticle = dynamic(() => import("./PostArticle"), { ssr: false });
+const PostLink = dynamic(() => import("./PostLink"), { ssr: false });
 import PostNostr from "./PostNostr";
 import RandomQuote from "./RandomQuote";
+import dynamic from "next/dynamic";
 
 const tabs = [
   { name: "link", href: "#", icon: LinkIcon },
   {
-    name: "article",
+    name: "discuss",
     href: "#",
-    icon: NewspaperIcon,
+    icon: UserGroupIcon,
   },
   { name: "nostr", href: "#", icon: GlobeAltIcon },
 ];
 
-export default function PostPage({
+export default async function PostPage({
   searchParams,
 }: {
   searchParams: { [key: string]: string };
@@ -81,7 +82,7 @@ export default function PostPage({
       </div>
       <div className="mt-10">
         {selectedTab === "link" && <PostLink />}
-        {selectedTab === "article" && <PostArticle />}
+        {selectedTab === "discuss" && <PostArticle />}
         {selectedTab === "nostr" && <PostNostr />}
       </div>
     </div>

@@ -50,3 +50,8 @@ export type PostArticle = {
   tags: string[];
   text: string;
 };
+
+export type Reply = {
+  text: string;
+  image: string;
+};

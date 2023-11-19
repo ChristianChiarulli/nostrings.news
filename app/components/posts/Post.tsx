@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Event, nip19 } from "nostr-tools";
 import { EventPointer } from "nostr-tools/lib/types/nip19";
-import 'nprogress/nprogress.css'
+import "nprogress/nprogress.css";
 
 import {
   addUpZaps,
@@ -21,6 +21,25 @@ import { Profile } from "@/types";
 import Zap from "../actions/Zap";
 import useAddSatStore from "@/stores/addSatStore";
 import PostMenu from "../menus/PostMenu";
+
+// const kind = getTagValue("k", event.tags);
+// const atag = getTagValue("a", event.tags);
+// const dtag = atag?.split(":")[2];
+// const pubkey = atag?.split(":")[1];
+//
+// const articleFilter: Filter = {
+//   kinds: [Number(kind)],
+//   limit: 1,
+//   authors: [pubkey as string],
+//   "#d": [dtag as string],
+// };
+//
+// const onArticleEvent = (event: Event) => {
+//   console.log("article event", event);
+//   setArticle(event);
+// };
+//
+// subscribePool(readRelays, articleFilter, onArticleEvent, () => {});
 
 interface Props {
   post: Event;
@@ -63,6 +82,52 @@ export default function Post({ post }: Props) {
     router.push(`/${nip19.neventEncode(eventPointer)}`);
   };
 
+  const setLabel = (post: Event) => {
+    if (getTagValue("w", post.tags)) {
+      return (
+        <Link
+          className="text-xs text-blue-500/90 hover:underline dark:text-blue-400/90"
+          href={`/from?site=${getTagValue("w", post.tags)}`}
+        >
+          {getTagValue("w", post.tags)}
+        </Link>
+      );
+    }
+
+    if (getTagValue("k", post.tags)) {
+      const kind = getTagValue("k", post.tags);
+      // construct naddr
+      // get atag make naddr
+      // link to blogstack
+      let href = "";
+      let label = "";
+      if (kind === "30023") {
+        label = "blogstack.io";
+        href = `/article/${nip19.neventEncode(eventPointer)}`;
+      }
+
+      return (
+        <Link
+          className="text-xs text-blue-500/90 hover:underline dark:text-blue-400/90"
+          href={href}
+        >
+          {label}
+        </Link>
+      );
+    }
+
+    if (post.content) {
+      return (
+        <Link
+          className="text-xs text-orange-500/90 hover:underline dark:text-orange-400/90"
+          href={`/discuss`}
+        >
+          [discuss]
+        </Link>
+      );
+    }
+  };
+
   return (
     <div
       key={post.id}
@@ -71,19 +136,28 @@ export default function Post({ post }: Props) {
       <Zap postEvent={post} />
       <div className="flex flex-col">
         <div className="flex flex-wrap items-center gap-x-2">
-          <a
-            href={getTagValue("u", post.tags) || "#"}
-            target="_blank"
-            rel="nofollow noopener noreferrer"
-            className="select-none text-sm dark:text-white"
-            // className="text-sm dark:text-white"
-          >{`${getTagValue("title", post.tags)}`}</a>
-          <Link
-            className="text-xs text-blue-500/90 hover:underline dark:text-blue-400/90"
-            href={`/from?site=${getTagValue("w", post.tags)}`}
-          >
-            {getTagValue("w", post.tags)}
-          </Link>
+            {getTagValue("u", post.tags) ? (
+              <a
+                href={getTagValue("u", post.tags) || "#"}
+                target="_blank"
+                rel="nofollow noopener noreferrer"
+                className="select-none text-sm dark:text-white"
+                // className="text-sm dark:text-white"
+              >{`${getTagValue("title", post.tags)}`}</a>
+            ) : (
+              <div
+                onClick={routeToNewsItem}
+                className="cursor-pointer select-none text-sm dark:text-white"
+                // className="text-sm dark:text-white"
+              >{`${getTagValue("title", post.tags)}`}</div>
+            )}
+            {setLabel(post)}
+            {/* <Link */}
+            {/*   className="text-xs text-blue-500/90 hover:underline dark:text-blue-400/90" */}
+            {/*   href={`/from?site=${getTagValue("w", post.tags)}`} */}
+            {/* > */}
+            {/*   {getTagValue("w", post.tags)} */}
+            {/* </Link> */}
         </div>
         <div className="flex flex-wrap items-center gap-x-1">
           <span
@@ -110,9 +184,10 @@ export default function Post({ post }: Props) {
           <span className="text-[.7rem] font-light text-zinc-500 dark:text-zinc-400">
             /
           </span>
-          <Link 
+          <Link
             href={`/u/${nip19.npubEncode(post.pubkey)}`}
-            className="cursor-pointer text-[.7rem] font-light text-purple-500/90 hover:underline dark:text-purple-400/90">
+            className="cursor-pointer text-[.7rem] font-light text-purple-500/90 hover:underline dark:text-purple-400/90"
+          >
             {/* TODO: check for valid nip05 */}
             {(profile && (profile.nip05 || profile.name)) ||
               shortenHash(nip19.npubEncode(post.pubkey))}

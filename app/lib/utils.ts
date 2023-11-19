@@ -21,6 +21,10 @@ export const shortenHash = (hash: string, length = 4 as number) => {
   }
 };
 
+export function shortHash(hash: string, length: number = 9) {
+  return hash.substring(0, length);
+}
+
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
