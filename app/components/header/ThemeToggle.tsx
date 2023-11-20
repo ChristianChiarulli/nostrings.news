@@ -27,7 +27,7 @@ export default function ThemeToggle({ theme }: Props) {
   return (
     <>
       <button
-        className="hidden outline-none focus:ring-0 sm:block"
+        className="outline-none focus:ring-0"
         onClick={toggleTheme}
       >
         {_theme === Theme.light ? (
