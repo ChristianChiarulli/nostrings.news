@@ -48,8 +48,13 @@ interface Props {
 export default function Post({ post }: Props) {
   dayjs.extend(relativeTime);
 
-  const { profileEvent, getProfileEvent, setCachedPost, zapReciepts, replyEvents } =
-    useEventStore();
+  const {
+    profileEvent,
+    getProfileEvent,
+    setCachedPost,
+    zapReciepts,
+    replyEvents,
+  } = useEventStore();
 
   const { additionalSats } = useAddSatStore();
 
@@ -86,12 +91,15 @@ export default function Post({ post }: Props) {
   const setLabel = (post: Event) => {
     if (getTagValue("w", post.tags)) {
       return (
-        <Link
+        <a
           className="text-xs text-blue-500/90 hover:underline dark:text-blue-400/90"
-          href={`/from?site=${getTagValue("w", post.tags)}`}
+          // href={`/from?site=${getTagValue("w", post.tags)}`}
+          href={getTagValue("u", post.tags) || "#"}
+          target="_blank"
+          rel="nofollow noopener noreferrer"
         >
           {getTagValue("w", post.tags)}
-        </Link>
+        </a>
       );
     }
 
@@ -108,19 +116,21 @@ export default function Post({ post }: Props) {
       }
 
       return (
-        <Link
+        <a
           className="text-xs text-blue-500/90 hover:underline dark:text-blue-400/90"
-          href={href}
+          href={getTagValue("u", post.tags) || "#"}
+          target="_blank"
+          rel="nofollow noopener noreferrer"
         >
           {label}
-        </Link>
+        </a>
       );
     }
 
     if (post.content) {
       return (
         <Link
-          className="text-xs hidden sm:block text-orange-500/90 hover:underline dark:text-orange-400/90"
+          className="hidden text-xs text-orange-500/90 hover:underline dark:text-orange-400/90 sm:block"
           href={`/discuss`}
         >
           [discuss]
@@ -136,17 +146,16 @@ export default function Post({ post }: Props) {
     >
       <Zap postEvent={post} size="6" />
       <div className="flex flex-col">
-        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-2">
-
+        <div className="flex flex-col items-center gap-x-2 sm:flex-row sm:flex-wrap">
           {getTagValue("u", post.tags) ? (
             <span>
-              <a
-                href={getTagValue("u", post.tags) || "#"}
-                target="_blank"
-                rel="nofollow noopener noreferrer"
+              <span
+                // href={getTagValue("u", post.tags) || "#"}
+                // target="_blank"
+                // rel="nofollow noopener noreferrer"
+                onClick={routeToNewsItem}
                 className="select-none text-sm dark:text-white"
-                // className="text-sm dark:text-white"
-              >{`${getTagValue("title", post.tags)}`}</a>
+              >{`${getTagValue("title", post.tags)}`}</span>
             </span>
           ) : (
             <span
@@ -166,8 +175,7 @@ export default function Post({ post }: Props) {
         <div className="flex flex-wrap items-center gap-x-1">
           <span
             className={`text-[.7rem] font-light ${
-              addUpZaps(zapReciepts[post?.id], additionalSats[post?.id]) >
-              100
+              addUpZaps(zapReciepts[post?.id], additionalSats[post?.id]) > 100
                 ? "text-green-500 dark:text-green-400"
                 : "text-zinc-500 dark:text-zinc-400"
             }    `}
@@ -184,7 +192,9 @@ export default function Post({ post }: Props) {
             onClick={routeToNewsItem}
             className="cursor-pointer text-[.7rem] font-light text-zinc-500 hover:underline dark:text-zinc-400"
           >
-            {`${post && replyEvents[post.id] && replyEvents[post.id].length || 0} replies`}
+            {`${
+              (post && replyEvents[post.id] && replyEvents[post.id].length) || 0
+            } replies`}
           </span>
           <span className="text-[.7rem] font-light text-zinc-500 dark:text-zinc-400">
             /
