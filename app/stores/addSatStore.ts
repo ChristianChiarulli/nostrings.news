@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { createJSONStorage, devtools, persist } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 
 export interface AddSatsState {
   additionalSats: Record<string, number>;
@@ -8,27 +8,19 @@ export interface AddSatsState {
 }
 
 const useAddSatStore = create<AddSatsState>()(
-  devtools(
-    // persist(
-      (set, _) => ({
-        additionalSats: {},
-        setAdditionalSats: (eventId, sats) =>
-          set((prev) => ({
-            additionalSats: { ...prev.additionalSats, [eventId]: sats },
-          })),
-        clearAdditionalSats: (eventId) =>
-          set((prev) => {
-            const { [eventId]: _, ...rest } = prev.additionalSats;
-            return { additionalSats: rest };
-          }),
+  devtools((set, _) => ({
+    additionalSats: {},
+    setAdditionalSats: (eventId, sats) =>
+      set((prev) => ({
+        additionalSats: { ...prev.additionalSats, [eventId]: sats },
+      })),
+    clearAdditionalSats: (eventId) =>
+      set((prev) => {
+        const updatedSats = { ...prev.additionalSats };
+        delete updatedSats[eventId];
+        return { additionalSats: updatedSats };
       }),
-
-      // {
-      //   name: "nostrings-additional-sats",
-      //   storage: createJSONStorage(() => sessionStorage),
-      // },
-    // ),
-  ),
+  })),
 );
 
 export default useAddSatStore;

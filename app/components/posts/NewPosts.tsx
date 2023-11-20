@@ -7,7 +7,7 @@ import { filterPosts } from "@/lib/utils";
 import useEventStore from "@/stores/eventStore";
 import useRelayStateStore from "@/stores/relayStateStore";
 import useRelayStore from "@/stores/relayStore";
-import { cacheProfiles, cacheZapReciepts } from "@/lib/nostr";
+import { cacheProfiles, cacheReplies, cacheZapReciepts } from "@/lib/nostr";
 import Post from "@/components/posts/Post";
 
 import { useSearchParams } from "next/navigation";
@@ -16,7 +16,7 @@ import SimpleNotification from "../notifications/SimpleNotification";
 export default function NewPosts() {
   const { readRelays } = useRelayStateStore();
   const { subscribePool } = useRelayStore();
-  const { newPosts, addNewPost, newPostLimit, setNewPostLimit, zapReciepts } =
+  const { newPosts, addNewPost, newPostLimit, setNewPostLimit, zapReciepts, replyEvents } =
     useEventStore();
 
   const searchParams = useSearchParams();
@@ -40,7 +40,6 @@ export default function NewPosts() {
     const events = [];
 
     const onEvent = (event: Event) => {
-      // console.log(event);
       events.push(event);
       addNewPost(event);
       if (!pubkeys.has(event.pubkey)) {
@@ -49,6 +48,10 @@ export default function NewPosts() {
       if (!zapReciepts[event.id]) {
         cacheZapReciepts(event.id);
       }
+      if (!replyEvents[event.id]) {
+        cacheReplies(event.id);
+      }
+
 
       pubkeys.add(event.pubkey);
     };

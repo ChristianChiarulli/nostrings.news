@@ -14,9 +14,9 @@ import {
 import { getTagValue, weblnConnect } from "./utils";
 import { KeyPair, ZapArgs } from "@/types";
 
-const { setProfileEvent, getProfileEvent, addZapReciept, zapReciepts } =
+const { setProfileEvent, getProfileEvent, addZapReciept, addReplyEvent } =
   useEventStore.getState();
-const { subscribe, subscribePool } = useRelayStore.getState();
+const { pool, subscribe, subscribePool } = useRelayStore.getState();
 const { readRelays } = useRelayStateStore.getState();
 
 export function cacheProfiles(pubkeys: string[]) {
@@ -43,20 +43,26 @@ export async function cacheZapReciepts(eventId: string) {
     "#e": [eventId],
   };
 
-  // const zapRecieptEvents = await pool.batchedList("zapReceipt", readRelays, [
-  //   zapRecieptFilter,
-  // ]);
-  //
-  // zapRecieptEvents.forEach((event) => {
-  //   // console.log("zap reciept event", event);
-  //   addZapReciept(eventId, event);
-  // });
-
   const onEvent = (event: Event) => {
     addZapReciept(eventId, event);
   };
 
   subscribePool(readRelays, zapRecieptFilter, onEvent, () => {});
+}
+
+export async function cacheReplies(eventId: string) {
+  const replyFilter: Filter = {
+    kinds: [1],
+    "#e": [eventId],
+  };
+
+  const replyEvents = await pool.batchedList("replies", readRelays, [
+    replyFilter,
+  ]);
+
+  replyEvents.forEach((event) => {
+    addReplyEvent(eventId, event);
+  });
 }
 
 export async function getZapEndpoint(metadata: Event): Promise<null | string> {

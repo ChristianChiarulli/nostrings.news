@@ -142,11 +142,11 @@ export const weblnConnect = async () => {
 
 export const formatSats = (sats: number) => {
   if (sats === 0) {
-    return "0 sats";
+    return "0";
   }
 
   if (sats < 10000) {
-    return `${sats} sats`;
+    return `${sats}`;
   }
 
   return numeral(sats).format("0.0a");
@@ -157,7 +157,7 @@ export const addUpZaps = (
   additionalSats: number = 0,
 ): number => {
   if (!zapReciepts) {
-    return 0;
+    return additionalSats;
   }
 
   const zapRecieptsSum = zapReciepts
@@ -170,8 +170,32 @@ export const addUpZaps = (
     .reduce((a, b) => a + b, 0);
 
   if (zapRecieptsSum === 0) {
-    return 0;
+    return additionalSats;
   }
 
   return zapRecieptsSum + additionalSats;
 };
+
+export function formatTimeAgo(eventTimestamp: number) {
+    const msPerMinute = 60 * 1000;
+    const msPerHour = msPerMinute * 60;
+    const msPerDay = msPerHour * 24;
+    const msPerMonth = msPerDay * 30;
+    const msPerYear = msPerDay * 365;
+
+    const elapsed = Date.now() - eventTimestamp;
+
+    if (elapsed < msPerMinute) {
+         return Math.round(elapsed/1000) + 's';   // Seconds
+    } else if (elapsed < msPerHour) {
+         return Math.round(elapsed/msPerMinute) + 'min'; // Minutes
+    } else if (elapsed < msPerDay ) {
+         return Math.round(elapsed/msPerHour ) + 'hr';   // Hours
+    } else if (elapsed < msPerMonth) {
+        return Math.round(elapsed/msPerDay) + 'd';    // Days
+    } else if (elapsed < msPerYear) {
+        return Math.round(elapsed/msPerMonth) + 'M';  // Months
+    } else {
+        return Math.round(elapsed/msPerYear ) + 'Y';  // Years
+    }
+}

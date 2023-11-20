@@ -51,6 +51,12 @@ export interface EventState {
   userPostLimit: number;
   setUserPostLimit: (limit: number) => void;
 
+  replyEvents: Record<string, Event[]>;
+  addReplyEvent: (id: string, event: Event) => void;
+  setReplyEvents: (id: string, events: Event[]) => void;
+  getReplyEvents: (id: string) => Event[];
+  removeReplyEvent: (id: string) => void;
+  clearReplyEvents: () => void;
 
   clearAllEvents: () => void;
 
@@ -190,6 +196,29 @@ const useEventStore = create<EventState>()(
       userPostLimit: 5,
       setUserPostLimit: (limit) => set({ userPostLimit: limit }),
 
+      replyEvents: {},
+      addReplyEvent: (id, event) =>
+        set((prev) => ({
+          replyEvents: {
+            ...prev.replyEvents,
+            [id]: [...(prev.replyEvents[id] ?? []), event],
+          },
+        })),
+      setReplyEvents: (id, events) =>
+        set((prev) => ({
+          replyEvents: { ...prev.replyEvents, [id]: events },
+        })),
+      getReplyEvents: (id) => get().replyEvents[id] ?? [],
+      clearReplyEvents: () => set({ replyEvents: {} }),
+      removeReplyEvent: (id) =>
+        set((prev) => ({
+          replyEvents: Object.fromEntries(
+            Object.entries(prev.replyEvents).map(([reply, events]) => [
+              reply,
+              events.filter((e) => e.id !== id),
+            ]),
+          ),
+        })),
 
       search: "",
       setSearch: (search) => set({ search }),

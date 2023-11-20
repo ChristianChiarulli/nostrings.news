@@ -3,33 +3,22 @@ import { shortHash } from "@/lib/utils";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import useRelayStateStore from "@/stores/relayStateStore";
 import useRelayStore from "@/stores/relayStore";
-import useEventStore from "@/stores/eventStore";
-import usePostStore from "@/stores/postStore";
-import useStore from "@/stores/useStore";
 import useLoginStore from "@/stores/loginStore";
-import { useRouter } from "next/navigation";
 import useReplyStore from "@/stores/replyStore";
 
 type Props = {
-  post: Event;
+  event: Event;
   open: boolean;
   setOpen: (show: boolean) => void;
   children: React.ReactNode;
 };
 
-const ReplyPopover = ({ post, open, setOpen, children }: Props) => {
-  const loginStore = useStore(useLoginStore, (state) => state);
+const ReplyPopover = ({ event, open, setOpen, children }: Props) => {
+  const loginStore = useLoginStore();
 
   const { reply, setReply, clearReply } = useReplyStore();
   const { writeRelays } = useRelayStateStore();
   const { publishPool } = useRelayStore();
-  const { clearAllEvents } = useEventStore();
-
-  const router = useRouter();
-
-  if (!loginStore) {
-    return <div className="min-h-screen">login first</div>;
-  }
 
   const validateBeforePublish = () => {
     if (reply.text === "") {
@@ -58,7 +47,14 @@ const ReplyPopover = ({ post, open, setOpen, children }: Props) => {
     const text = reply.text;
     const image = reply.image;
 
-    const replyTags = [];
+    // ["e", <event-id>, <relay-url>, <marker>]
+    // <event-id> is the id of the event being referenced.
+    // <relay-url> is the URL of a recommended relay associated with the reference. Clients SHOULD add a valid <relay-URL> field, but may instead leave it as "".
+    // <marker> is optional and if present is one of "reply", "root", or "mention".
+    const replyTags = [
+      ["e", event.id, writeRelays[0], "root"],
+      ["p", event.pubkey],
+    ];
 
     // TODO: add every etag user is replying to
 
@@ -66,7 +62,7 @@ const ReplyPopover = ({ post, open, setOpen, children }: Props) => {
       replyTags.push(["image", image]);
     }
 
-    let newsEvent: Event = {
+    let replyEvent: Event = {
       id: "",
       sig: "",
       kind: 1,
@@ -76,20 +72,25 @@ const ReplyPopover = ({ post, open, setOpen, children }: Props) => {
       pubkey: publicKey,
     };
 
-    newsEvent.id = getEventHash(newsEvent);
+    replyEvent.id = getEventHash(replyEvent);
     if (secretKey) {
-      newsEvent.sig = getSignature(newsEvent, secretKey);
+      replyEvent.sig = getSignature(replyEvent, secretKey);
     } else {
-      newsEvent = await window.nostr.signEvent(newsEvent);
+      replyEvent = await window.nostr.signEvent(replyEvent);
     }
 
-    const onNewsEventSeen = (event: Event) => {
+    const onReplyEventSeen = (event: Event) => {
       console.log("news event", event);
       // TODO: append the new event to the reply cache
-      // clear reply text and image
+      clearReply();
+      setOpen(false);
     };
 
-    // publishPool(writeRelays, newsEvent, onNewsEventSeen);
+    console.log("publishing reply");
+    console.log(reply);
+    console.log(replyEvent);
+
+    publishPool(writeRelays, replyEvent, onReplyEventSeen);
   };
 
   return (
@@ -104,7 +105,7 @@ const ReplyPopover = ({ post, open, setOpen, children }: Props) => {
                   htmlFor="comment"
                   className="block text-sm font-bold leading-6 text-zinc-900 dark:text-zinc-100"
                 >
-                  {`reply to ${shortHash(post.id)}`}
+                  {`reply to ${shortHash(event.id)}`}
                 </label>
                 <button
                   className="rounded-md text-sm font-medium shadow-sm hover:bg-zinc-700"
@@ -121,8 +122,14 @@ const ReplyPopover = ({ post, open, setOpen, children }: Props) => {
                   rows={4}
                   name="comment"
                   id="comment"
+                  value={reply.text}
+                  onChange={(e) => {
+                    setReply({
+                      ...reply,
+                      text: e.target.value,
+                    });
+                  }}
                   className="block w-80 rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-600 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 sm:text-sm sm:leading-6"
-                  defaultValue={""}
                 />
 
                 <div className="max-w-lg pt-4">
@@ -137,6 +144,13 @@ const ReplyPopover = ({ post, open, setOpen, children }: Props) => {
                       type="text"
                       name="image"
                       id="image"
+                      value={reply.image}
+                      onChange={(e) => {
+                        setReply({
+                          ...reply,
+                          image: e.target.value,
+                        });
+                      }}
                       className="block w-80 rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-600 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 sm:text-sm sm:leading-6"
                       aria-describedby="image url"
                     />
@@ -148,7 +162,7 @@ const ReplyPopover = ({ post, open, setOpen, children }: Props) => {
             <div className="flex w-full justify-end pt-4">
               <button
                 className="rounded-lg border border-zinc-300 px-2 py-1 font-mono text-zinc-600 shadow-lg shadow-black/5 hover:text-zinc-500 dark:border-zinc-600 dark:text-zinc-200 dark:hover:text-zinc-100"
-                onClick={() => setOpen(false)}
+                onClick={handleSendReply}
               >
                 post
               </button>

@@ -18,9 +18,10 @@ import useAddSatStore from "@/stores/addSatStore";
 
 interface Props {
   postEvent: Event;
+  size: string;
 }
 
-export default function Zap({ postEvent }: Props) {
+export default function Zap({ postEvent, size }: Props) {
   // TODO: check if user is logged in
   const { writeRelays } = useRelayStateStore();
   const { getProfileEvent, addZapReciept } = useEventStore();
@@ -133,7 +134,7 @@ export default function Zap({ postEvent }: Props) {
       alert("Error sending zap! Amount must be greater than 0.");
       return;
     }
-    
+
     // setAdditionalSats(postEvent.id, amount);
 
     const zapArgs: ZapArgs = {
@@ -183,13 +184,15 @@ export default function Zap({ postEvent }: Props) {
   };
 
   const iconClass = isActive
-    ? tw`h-6 w-6 flex-shrink-0 cursor-pointer text-yellow-500`
-    : tw`h-6 w-6 flex-shrink-0 cursor-pointer text-zinc-400 hover:text-yellow-400 dark:hover:text-yellow-300`;
+    ? tw`h-${size} w-${size} flex-shrink-0 cursor-pointer text-yellow-500`
+    : tw`h-${size} w-${size} flex-shrink-0 cursor-pointer text-zinc-400 hover:text-yellow-400 dark:hover:text-yellow-300`;
 
   return (
     <>
       {buttonDisabled ? (
-        <BoltIcon className={iconClass} />
+        <button>
+          <BoltIcon className={iconClass} />
+        </button>
       ) : (
         <Tooltip
           position="bottom"

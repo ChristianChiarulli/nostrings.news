@@ -21,6 +21,7 @@
     "bech32": "^2.0.0",
     "bolt11": "^1.4.1",
     "dayjs": "^1.11.10",
+    "dompurify": "^3.0.6",
     "dotenv": "^16.3.1",
     "fuse.js": "^7.0.0",
     "geist": "^1.1.0",
@@ -41,6 +42,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
+    "@types/dompurify": "^3.0.5",
     "@types/node": "^20.9.1",
     "@types/nprogress": "^0.2.3",
     "@types/numeral": "^2.0.5",
