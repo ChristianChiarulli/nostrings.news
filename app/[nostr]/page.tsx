@@ -102,7 +102,7 @@ export default function NewsItemPage() {
 
     function setupMarkdown(content: string) {
       const md = require("markdown-it")();
-      let html = md.render(content);
+      const html = md.render(content);
       // html = convertYouTubeLinksToEmbeds(html);
       // html = DOMPurify.sanitize(html);
       return html;
