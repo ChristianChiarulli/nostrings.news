@@ -43,7 +43,7 @@ export default function Zap({ postEvent, size }: Props) {
 
   const handleClick = () => {
     setClickCount((prevCount) => prevCount + 10);
-    setAdditionalSats(postEvent.id, clickCount);
+    // setAdditionalSats(postEvent.id, clickCount);
     setIsActive(true);
     setTimeout(() => setIsActive(false), 100); // Change color for 200ms
   };
@@ -125,7 +125,7 @@ export default function Zap({ postEvent, size }: Props) {
     if (e) {
       e.preventDefault();
       amount = tipInputValue;
-      setAdditionalSats(postEvent.id, amount);
+      // setAdditionalSats(postEvent.id, amount);
     } else {
       amount = clickCount - 10;
     }
@@ -178,7 +178,7 @@ export default function Zap({ postEvent, size }: Props) {
       return;
     }
 
-    sendZap(zapArgs, userKeyPair, profile, onSuccess, onErr);
+    sendZap(postEvent, amount, zapArgs, userKeyPair, profile, onSuccess, onErr);
     setIsZapModalOpen(false);
     setTipInputValue(100);
   };

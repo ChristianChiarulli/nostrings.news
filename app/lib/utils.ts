@@ -11,7 +11,7 @@ import bolt11 from "bolt11";
 import numeral from "numeral";
 import useAddSatStore from "@/stores/addSatStore";
 
-const { additionalSats } = useAddSatStore.getState();
+const { additionalSats, clearAdditionalSats } = useAddSatStore.getState();
 
 export const shortenHash = (hash: string, length = 4 as number) => {
   if (hash) {

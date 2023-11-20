@@ -13,11 +13,19 @@ import {
 } from "nostr-tools";
 import { getTagValue, weblnConnect } from "./utils";
 import { KeyPair, ZapArgs } from "@/types";
+import useAddSatStore from "@/stores/addSatStore";
 
-const { setProfileEvent, getProfileEvent, addZapReciept, addReplyEvent } =
-  useEventStore.getState();
+const {
+  setProfileEvent,
+  getProfileEvent,
+  addZapReciept,
+  addReplyEvent,
+  zapReciepts,
+} = useEventStore.getState();
 const { pool, subscribe, subscribePool } = useRelayStore.getState();
 const { readRelays } = useRelayStateStore.getState();
+const { additionalSats, setAdditionalSats, clearAdditionalSats } =
+  useAddSatStore.getState();
 
 export function cacheProfiles(pubkeys: string[]) {
   const userFilter: Filter = {
@@ -62,6 +70,10 @@ export async function cacheReplies(eventId: string) {
 
   replyEvents.forEach((event) => {
     addReplyEvent(eventId, event);
+
+    if (!zapReciepts[event.id]) {
+      cacheZapReciepts(event.id);
+    }
   });
 }
 
@@ -113,6 +125,8 @@ export const fetchInvoice = async (
 };
 
 export const sendZap = async (
+  event: Event,
+  amount: number,
   zapArgs: ZapArgs,
   zapperKeyPair: KeyPair,
   zapeeProfileEvent: Event,
@@ -122,6 +136,7 @@ export const sendZap = async (
   const connected: boolean = await weblnConnect();
 
   if (connected) {
+    setAdditionalSats(event.id, amount);
     const zapEndpoint: string | null = await getZapEndpoint(zapeeProfileEvent);
 
     if (!zapEndpoint) {
