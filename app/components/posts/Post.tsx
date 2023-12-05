@@ -128,14 +128,7 @@ export default function Post({ post }: Props) {
     }
 
     if (post.content) {
-      return (
-        <Link
-          className="hidden text-xs text-orange-500/90 hover:underline dark:text-orange-400/90 sm:block"
-          href={`/discuss`}
-        >
-          [discuss]
-        </Link>
-      );
+      return null;
     }
   };
 
