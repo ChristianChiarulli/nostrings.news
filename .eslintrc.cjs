@@ -1,54 +1,40 @@
-module.exports = {
-  extends: [
-    "next",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
-    "plugin:@typescript-eslint/recommended",
-    // "prettier", // Add this line
-    // "plugin:prettier/recommended", // Add this line
-  ],
+/** @type {import("eslint").Linter.Config} */
+const config = {
   parser: "@typescript-eslint/parser",
-  // plugins: ["@typescript-eslint", "react", "react-hooks", "import"],
-  plugins: ["@typescript-eslint", "react", "react-hooks" ],
-  rules: {
-    "@next/next/no-html-link-for-pages": "off",
-    "react/react-in-jsx-scope": "off",
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-unused-vars": "off",
-    "@typescript-eslint/no-var-requires": "off",
-    "react-hooks/exhaustive-deps": "off",
-    "react/no-unescaped-entities": "off",
-    // Add the import/order rule here
-    // "import/order": [
-    //   "error",
-    //   {
-    //     groups: [
-    //       "builtin",
-    //       "external",
-    //       "internal",
-    //       "parent",
-    //       "sibling",
-    //       "index",
-    //     ],
-    //     "newlines-between": "always",
-    //     alphabetize: {
-    //       order: "asc",
-    //       caseInsensitive: true,
-    //     },
-    //   },
-    // ],
-  },
   parserOptions: {
-    babelOptions: {
-      presets: [require.resolve("next/babel")],
-    },
-    ecmaFeatures: {
-      jsx: true,
-    },
+    project: true,
   },
-  settings: {
-    react: {
-      version: "detect",
-    },
+  plugins: ["@typescript-eslint", "react-hooks"],
+  extends: [
+    "plugin:@next/next/recommended",
+    "plugin:@typescript-eslint/recommended-type-checked",
+    "plugin:@typescript-eslint/stylistic-type-checked",
+    "plugin:react-hooks/recommended",
+  ],
+  rules: {
+    // These opinionated rules are enabled in stylistic-type-checked above.
+    // Feel free to reconfigure them to your own preference.
+    "@typescript-eslint/array-type": "off",
+    "@typescript-eslint/consistent-type-definitions": "off",
+    "@typescript-eslint/prefer-nullish-coalescing": "warn",
+    "@typescript-eslint/no-empty-function": "off",
+
+    "@typescript-eslint/consistent-type-imports": [
+      "warn",
+      {
+        prefer: "type-imports",
+        fixStyle: "inline-type-imports",
+      },
+    ],
+    "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+    "@typescript-eslint/require-await": "off",
+    "@typescript-eslint/no-misused-promises": [
+      "error",
+      {
+        checksVoidReturn: { attributes: false },
+      },
+    ],
   },
 };
+
+module.exports = config;
