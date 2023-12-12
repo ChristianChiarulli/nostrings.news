@@ -17,27 +17,27 @@ const useProfileEvent = ({
   const [profileEvent, setProfileEvent] = useState<Event>();
 
   useEffect(() => {
-    setLoading(true);
-    const fetchEvents = async () => {
-      const _profileEvent = await fetchProfileEvent({
-        pool,
-        relays,
-        pubkey,
-      });
-
-      // const profileEvent = profileEvents.find(
-      //   (event) => event.pubkey === pubkey,
-      // );
-
-      if (_profileEvent) {
-        setProfileEvent(_profileEvent);
-        onProfileEvent(_profileEvent);
+    async function fetchProfile() {
+      try {
+        const profileEvent: Event | null = await fetchProfileEvent({
+          pubkey,
+          relays,
+        });
+        if (!profileEvent) {
+          setLoading(false);
+          return;
+        }
+        setProfileEvent(profileEvent);
+        onProfileEvent(profileEvent);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
       }
-      setLoading(false);
-    };
+    }
 
     if (shouldFetch) {
-      void fetchEvents();
+      setLoading(true);
+      void fetchProfile();
     } else {
       setLoading(false);
     }
