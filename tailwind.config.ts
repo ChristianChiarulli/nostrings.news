@@ -1,43 +1,43 @@
-import type { Config } from "tailwindcss";
-
-const config: Config = {
-  content: ["./app/**/*.{js,ts,jsx,tsx,mdx}"],
-  darkMode: "class",
-
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: ["class"],
+  content: ["./src/**/*.{ts,tsx}"],
   theme: {
-    screens: {
-      xs: "470px", // Custom 'xs' breakpoint
-      sm: "640px",
-      md: "768px",
-      lg: "1024px",
-      xl: "1280px",
-      "2xl": "1536px",
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        xs: "470px", // Custom 'xs' breakpoint
+        sm: "640px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1536px",
+      },
     },
-
-    // typography: {
-    //   default: {
-    //     css: {
-    //       pre: true,
-    //       code: true,
-    //       "pre code": false,
-    //       "code::before": false,
-    //       "code::after": false,
-    //     },
-    //   },
-    // },
-
     extend: {
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
         mono: ["var(--font-geist-mono)"],
       },
+      fontSize: {
+        xxs: "0.7rem",
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: 0 },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: 0 },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
     },
   },
-
-  plugins: [
-    require("@tailwindcss/typography"),
-    require("@tailwindcss/forms"),
-    require("@tailwindcss/aspect-ratio"),
-  ],
+  plugins: [require("tailwindcss-animate")],
 };
-export default config;
