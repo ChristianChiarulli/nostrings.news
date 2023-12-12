@@ -1,6 +1,6 @@
 import { type Event } from "nostr-tools";
 
-import { type SubscribeParams } from "../types";
+import { type ListEventsParams } from "../types";
 import defaultPool from "./pool";
 
 export const list = ({
@@ -8,14 +8,10 @@ export const list = ({
   relays,
   filter,
   timeout = 3000,
-  onEvent = (event: Event) => {
-    console.debug("onEvent called", event);
-  },
-  onEOSE = () => {
-    console.debug("onEOSE called");
-  },
+  onEvent = (event: Event) => {},
+  onEOSE = () => {},
   onEventPredicate = () => true,
-}: SubscribeParams) => {
+}: ListEventsParams) => {
   return new Promise((resolve) => {
     const sub = pool.sub(relays, [filter]);
     const events: Event[] = [];
