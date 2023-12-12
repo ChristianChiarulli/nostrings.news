@@ -1,7 +1,7 @@
 "use client";
 
 import useListEvents from "~/nostr-query/client/hooks/useListEvents";
-import { type UseSubEventsParams } from "~/nostr-query/types";
+import { type UseListEventsParams } from "~/nostr-query/types";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import { type Event, type Filter } from "nostr-tools";
@@ -14,7 +14,8 @@ type Props = {
 };
 
 export default function Posts({ initialPosts }: Props) {
-  const { newPostEvents, setNewPostEvents } = useEventStore();
+  const { newPostEvents, setNewPostEvents } =
+    useEventStore();
   const { subRelays } = useRelayStore();
 
   const filter: Filter = {
@@ -22,16 +23,10 @@ export default function Posts({ initialPosts }: Props) {
     limit: 5,
   };
 
-  // onEvent add profile to profileMap abstract this function
-  const onEvent = (event: Event) => {
-    // fetchProfile(event.pubkey);
-  };
-
-  const params: UseSubEventsParams = {
+  const params: UseListEventsParams = {
     filter: filter,
     relays: subRelays,
     initialEvents: newPostEvents || initialPosts,
-    onEvent: onEvent,
     onEventsResolved: (events) => {
       setNewPostEvents(events);
     },

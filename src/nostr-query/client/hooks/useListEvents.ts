@@ -1,28 +1,23 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { list } from "~/nostr-query/lib/relay";
-import { type UseSubEventsParams } from "~/nostr-query/types";
+import { type UseListEventsParams } from "~/nostr-query/types";
 import { type Event } from "nostr-tools";
 
 import defaultPool from "../../lib/pool";
 
 // TODO: load newer events function
+// TODO: add invalidation function
 const useListEvents = ({
   pool = defaultPool,
   relays,
   filter,
   initialEvents = [],
-  onEvent = (event) => {
-    console.debug("onEvent called", event);
-  },
-  onEOSE = () => {
-    console.debug("onEOSE called");
-  },
+  onEvent = (event) => {},
+  onEOSE = () => {},
   onEventPredicate = () => true,
-  onEventsResolved = (events) => {
-    console.debug("onEventsResolved called", events);
-  },
-}: UseSubEventsParams) => {
+  onEventsResolved = (events) => {},
+}: UseListEventsParams) => {
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<Event[]>([]);
 
@@ -77,6 +72,7 @@ const useListEvents = ({
 
   useEffect(() => {
     if (initialEvents.length > 0) {
+      onEventsResolved(initialEvents);
       setEvents(initialEvents);
       setLoading(false);
       return;
@@ -106,7 +102,6 @@ const useListEvents = ({
     };
   }, [pool, relays]);
 
-  // return { loading, loadOlderEvents };
   return { loading, events, loadOlderEvents };
 };
 
