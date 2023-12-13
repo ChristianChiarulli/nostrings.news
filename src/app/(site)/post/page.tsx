@@ -19,7 +19,8 @@ function getRandomNewsQuote() {
   const randomIndex = Math.floor(Math.random() * NEWS_QUOTES.length);
   return NEWS_QUOTES[randomIndex];
 }
-const quote = getRandomNewsQuote() ?? "No news is good news.";
+// const quote = getRandomNewsQuote() ?? "No news is good news.";
+const quote = "No news is good news.";
 
 export default async function PostPage({
   searchParams,
