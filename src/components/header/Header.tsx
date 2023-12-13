@@ -1,10 +1,30 @@
+import { authOptions } from "~/app/api/auth/[...nextauth]/route";
+import { fetchProfileEvent } from "~/nostr-query/lib/profile";
+import { type UserWithKeys } from "~/types";
+import { getServerSession } from "next-auth";
 import Link from "next/link";
 
 import { Button } from "../ui/button";
 import { ThemeToggle } from "../ui/theme-toggle";
 import LoginButton from "./LoginButton";
+import UserProfile from "./UserProfile";
 
 export default async function Header() {
+  const session = await getServerSession(authOptions);
+  let loggedIn = false;
+  let publicKey = "";
+  let profileEvent;
+
+  if (session?.user) {
+    const user = session?.user as UserWithKeys;
+    publicKey = user.publicKey;
+    if (publicKey) {
+      loggedIn = true;
+      const relays = ["wss://nos.lol", "wss://relay.damus.io"];
+      profileEvent = await fetchProfileEvent({ pubkey: publicKey, relays });
+    }
+  }
+
   return (
     <header className="mb-2 flex items-center justify-between border-b border-zinc-200 p-1.5 dark:border-zinc-800">
       <nav className="flex items-center px-2.5">
@@ -46,20 +66,11 @@ export default async function Header() {
           <Link href="/create">post</Link>
         </Button>
         <ThemeToggle />
-        {/* {loggedIn ? ( */}
-        {/*   <button> */}
-        {/*     <Image */}
-        {/*       src={picture} */}
-        {/*       alt="" */}
-        {/*       width={28} */}
-        {/*       height={28} */}
-        {/*       quality={100} */}
-        {/*       className="rounded-full" */}
-        {/*     /> */}
-        {/*   </button> */}
-        {/* ) : ( */}
-        <LoginButton />
-        {/* )} */}
+        {loggedIn ? (
+          <UserProfile pubkey={publicKey} initialProfile={profileEvent} />
+        ) : (
+          <LoginButton />
+        )}
       </div>
     </header>
   );

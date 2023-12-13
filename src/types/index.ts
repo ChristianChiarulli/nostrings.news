@@ -1,3 +1,5 @@
+import { type User } from "next-auth";
+
 export type Profile = {
   relay?: string;
   publicKey?: string;
@@ -13,3 +15,14 @@ export type Profile = {
   github?: string;
   [key: string]: unknown;
 };
+
+export type UserWithKeys = User & {
+  secretKey: string;
+  publicKey: string;
+};
+
+
+export type TokenWithPublicKey = {
+  publicKey: string;
+};
+

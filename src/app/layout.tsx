@@ -5,6 +5,8 @@ import type { Metadata } from "next";
 
 import "~/styles/globals.css";
 
+import AuthProvider from "~/context/AuthProvider";
+
 export const metadata: Metadata = {
   title: "nostrings",
   description: "no strings on me",
@@ -16,7 +18,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html className={`${GeistSans.variable} ${GeistMono.variable}`} lang="en" suppressHydrationWarning>
+    <html
+      className={`${GeistSans.variable} ${GeistMono.variable}`}
+      lang="en"
+      suppressHydrationWarning
+    >
       <body className="flex h-full bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
         <ThemeProvider
           attribute="class"
@@ -24,7 +30,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>
     </html>

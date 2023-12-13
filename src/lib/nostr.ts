@@ -15,7 +15,7 @@ export function tag(key: string, event: Event | undefined) {
 }
 
 // gets profile content
-export function pc(event: Event | undefined) {
+export function pc(event: Event | undefined | null) {
   if (!event) {
     return {};
   }

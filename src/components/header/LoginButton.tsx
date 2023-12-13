@@ -2,10 +2,13 @@
 
 import { Button } from "../ui/button";
 
+import { useSession, signIn, signOut } from "next-auth/react";
+
 export default function LoginButton() {
   return (
-    <Button variant="outline" size="sm">
+    <Button onClick={() => signIn()} variant="outline" size="sm">
       login &rarr;
     </Button>
   );
 }
+
