@@ -2,7 +2,7 @@ import NextAuth, { type AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { type TokenWithPublicKey, type UserWithKeys } from "~/types";
 
-export const authOptions: AuthOptions = {
+const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "nostr",
