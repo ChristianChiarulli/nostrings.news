@@ -11,7 +11,14 @@ const tabs = [
     name: "discuss",
     icon: UsersRoundIcon,
   },
-  // { name: "nostr", icon: SatelliteDishIcon },
+  { name: "nostr", icon: SatelliteDishIcon },
+  { name: "nostr", icon: SatelliteDishIcon },
+  { name: "nostr", icon: SatelliteDishIcon },
+  { name: "nostr", icon: SatelliteDishIcon },
+  { name: "nostr", icon: SatelliteDishIcon },
+  { name: "nostr", icon: SatelliteDishIcon },
+  { name: "nostr", icon: SatelliteDishIcon },
+  { name: "nostr", icon: SatelliteDishIcon },
 ];
 
 function getRandomNewsQuote() {
@@ -29,25 +36,12 @@ export default async function PostPage({
   return (
     <div className="my-10 px-1.5">
       <RandomQuote quote={quote} />
-      <div className="w-full max-w-md sm:hidden">
-        <label htmlFor="tabs" className="sr-only">
-          Select a tab
-        </label>
-        {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
-        <select
-          id="tabs"
-          name="tabs"
-          className="block w-full cursor-pointer rounded-md border-zinc-200 focus:border-purple-500 focus:ring-purple-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-          defaultValue={"Link"}
-        >
-          {tabs.map((tab) => (
-            <option key={tab.name}>{tab.name}</option>
-          ))}
-        </select>
-      </div>
-      <div className="hidden w-full sm:block">
+      <div className="w-full sm:block">
         <div className="border-b border-zinc-200 dark:border-zinc-700">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+          <nav
+            className="no-scrollbar -mb-px flex space-x-8 overflow-x-auto"
+            aria-label="Tabs"
+          >
             {tabs.map((tab) => (
               <Link
                 replace={true}
