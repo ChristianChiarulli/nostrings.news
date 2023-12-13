@@ -1,4 +1,3 @@
-import { authOptions } from "~/app/api/auth/[...nextauth]/route";
 import { fetchProfileEvent } from "~/nostr-query/lib/profile";
 import { type UserWithKeys } from "~/types";
 import { getServerSession } from "next-auth";
@@ -8,6 +7,7 @@ import { Button } from "../ui/button";
 import { ThemeToggle } from "../ui/theme-toggle";
 import LoginButton from "./LoginButton";
 import UserProfile from "./UserProfile";
+import { authOptions } from "~/app/api/auth/[...nextauth]/auth";
 
 export default async function Header() {
   const session = await getServerSession(authOptions);
