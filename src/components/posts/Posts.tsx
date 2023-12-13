@@ -45,8 +45,8 @@ export default function Posts({ initialPosts }: Props) {
     <>
       <ul className="flex flex-col gap-y-2">
         {(newPostEvents.length > 0 ? newPostEvents : initialPosts).map(
-          (postEvent) => (
-            <Post key={postEvent.id} postEvent={postEvent} />
+          (postEvent, idx) => (
+            <Post key={postEvent.id} postEvent={postEvent} index={idx} />
           ),
         )}
       </ul>

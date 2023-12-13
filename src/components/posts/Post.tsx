@@ -12,6 +12,7 @@ import { Zap } from "../zap/Zap";
 
 type Props = {
   postEvent: Event;
+  index: number;
 };
 
 function Divider() {
@@ -22,24 +23,27 @@ function Divider() {
   );
 }
 
-export default function Post({ postEvent }: Props) {
+export default function Post({ postEvent, index }: Props) {
   return (
     <li className="flex items-start gap-x-1.5">
-      <Zap />
+      {/* <Zap /> */}
+      <span className="text-lg p-2 font-light text-zinc-500 dark:text-zinc-400">
+        {index + 1}
+      </span>
       <div className="flex flex-col gap-y-0.5">
         <div className="flex flex-wrap items-center gap-x-2">
           <h3 className="text-sm">{tag("title", postEvent)}</h3>
           <PostLabel postEvent={postEvent} />
         </div>
         <span className="flex gap-x-1">
-          <PostSatCount />
-          <Divider />
-          <PostReplyCount postEvent={postEvent} />
-          <Divider />
+          {/* <PostSatCount /> */}
+          {/* <Divider /> */}
+          {/* <PostReplyCount postEvent={postEvent} /> */}
+          {/* <Divider /> */}
           <PostProfile pubkey={postEvent.pubkey} />
           <PostDate createdAt={postEvent.created_at} />
           <PostTag postEvent={postEvent} />
-          <PostMenu />
+          {/* <PostMenu /> */}
         </span>
       </div>
     </li>

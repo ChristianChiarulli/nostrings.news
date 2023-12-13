@@ -26,7 +26,7 @@ export default async function Header() {
   }
 
   return (
-    <header className="mb-2 flex items-center justify-between border-b border-zinc-200 p-1.5 dark:border-zinc-800">
+    <header className="mb-2 flex items-center justify-between border-b border-zinc-200 p-1.5 dark:border-zinc-700">
       <nav className="flex items-center px-2.5">
         <Link href="/" className="flex items-center py-1">
           <svg
@@ -53,17 +53,17 @@ export default async function Header() {
             no<span className="text-purple-400">_</span>strings
           </h3>
         </Link>
-        <Link
-          href="/new"
-          className="cursor-pointer rounded-xl px-2 py-1 font-mono text-sm dark:text-zinc-300"
-        >
-          new
-        </Link>
+        {/* <Link */}
+        {/*   href="/new" */}
+        {/*   className="cursor-pointer rounded-xl px-2 py-1 font-mono text-sm dark:text-zinc-300" */}
+        {/* > */}
+        {/*   new */}
+        {/* </Link> */}
         {/* <PostFilter /> */}
       </nav>
       <div className="flex items-center justify-center gap-x-4">
         <Button asChild variant="outline" size="sm">
-          <Link href="/create">post</Link>
+          <Link href="/post">post</Link>
         </Button>
         <ThemeToggle />
         {loggedIn ? (

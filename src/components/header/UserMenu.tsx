@@ -16,10 +16,10 @@ export default function UserMenu({ children }: Props) {
     <DropdownMenu>
       <DropdownMenuTrigger>{children}</DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="mt-2">
-        <DropdownMenuItem>profile</DropdownMenuItem>
-        <DropdownMenuItem>settings</DropdownMenuItem>
-        <DropdownMenuItem>relays</DropdownMenuItem>
-        <DropdownMenuSeparator />
+        {/* <DropdownMenuItem>profile</DropdownMenuItem> */}
+        {/* <DropdownMenuItem>settings</DropdownMenuItem> */}
+        {/* <DropdownMenuItem>relays</DropdownMenuItem> */}
+        {/* <DropdownMenuSeparator /> */}
         <DropdownMenuItem
           onClick={() => signOut()}
           className="dark:text-red-400 dark:focus:bg-red-400/10 dark:focus:text-red-400 "
