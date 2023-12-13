@@ -8,7 +8,6 @@ import { useRelayStore } from "~/store/relay-store";
 import Image from "next/image";
 import { type Event } from "nostr-tools";
 
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import UserMenu from "./UserMenu";
 
 type Props = {
@@ -17,9 +16,9 @@ type Props = {
 };
 
 export default function UserProfile({ pubkey, initialProfile }: Props) {
+  const BOT_AVATAR_ENDPOINT = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${pubkey}`;
   const { profileMap, addProfile } = useEventStore();
   const { subRelays } = useRelayStore();
-  const BOT_AVATAR_ENDPOINT = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${pubkey}`;
 
   const params: UseProfileEventParams = {
     pubkey: pubkey,
@@ -34,16 +33,17 @@ export default function UserProfile({ pubkey, initialProfile }: Props) {
 
   return (
     <UserMenu>
-      <Avatar>
-        <AvatarImage
-          src={
-            pc(profileMap[pubkey] ?? initialProfile).picture ??
-            BOT_AVATAR_ENDPOINT
-          }
-          alt={pubkey.slice(0, 4)}
-        />
-        {/* <AvatarFallback>{pubkey.slice(0, 2)}</AvatarFallback> */}
-      </Avatar>
+      <Image
+        src={
+          pc(profileMap[pubkey] ?? initialProfile).picture ??
+          BOT_AVATAR_ENDPOINT
+        }
+        alt=""
+        width={34}
+        height={34}
+        quality={100}
+        className="aspect-square rounded-full border border-zinc-200 dark:border-zinc-800"
+      />
     </UserMenu>
   );
 }
