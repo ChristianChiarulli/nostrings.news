@@ -42,8 +42,7 @@ export default function UserProfile({ pubkey, initialProfile }: Props) {
           }
           alt={pubkey.slice(0, 4)}
         />
-
-        <AvatarFallback>{pubkey.slice(0, 2)}</AvatarFallback>
+        {/* <AvatarFallback>{pubkey.slice(0, 2)}</AvatarFallback> */}
       </Avatar>
     </UserMenu>
   );
