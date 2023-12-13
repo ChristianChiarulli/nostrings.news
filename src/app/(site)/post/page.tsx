@@ -2,7 +2,7 @@ import { LinkForm } from "~/components/create/LinkForm";
 import RandomQuote from "~/components/misc/RandomQuote";
 import { NEWS_QUOTES } from "~/lib/constants";
 import { cn } from "~/lib/utils";
-import { Link2, SatelliteDishIcon, UsersRoundIcon } from "lucide-react";
+import { Link2, NewspaperIcon, SatelliteDishIcon, UsersRoundIcon } from "lucide-react";
 import Link from "next/link";
 
 const tabs = [
@@ -12,13 +12,7 @@ const tabs = [
     icon: UsersRoundIcon,
   },
   { name: "nostr", icon: SatelliteDishIcon },
-  { name: "nostr", icon: SatelliteDishIcon },
-  { name: "nostr", icon: SatelliteDishIcon },
-  { name: "nostr", icon: SatelliteDishIcon },
-  { name: "nostr", icon: SatelliteDishIcon },
-  { name: "nostr", icon: SatelliteDishIcon },
-  { name: "nostr", icon: SatelliteDishIcon },
-  { name: "nostr", icon: SatelliteDishIcon },
+  { name: "bounty", icon: NewspaperIcon },
 ];
 
 function getRandomNewsQuote() {
