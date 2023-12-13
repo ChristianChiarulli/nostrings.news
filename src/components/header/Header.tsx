@@ -49,7 +49,7 @@ export default async function Header() {
               height="256"
             ></rect>
           </svg>
-          <h3 className="xs:block hidden pr-2 font-mono text-sm font-bold dark:text-zinc-200">
+          <h3 className="pr-2 font-mono text-sm font-bold dark:text-zinc-200">
             no<span className="text-purple-400">_</span>strings
           </h3>
         </Link>
