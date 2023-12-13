@@ -15,3 +15,12 @@ export function fromNow(createdAt: number | undefined) {
   const time = dayjs(createdAt * 1000).fromNow();
   return time;
 }
+
+export function getDomain(url: string) {
+  try {
+    const parsedUrl = new URL(url);
+    return parsedUrl.hostname;
+  } catch (e) {
+    return null;
+  }
+}

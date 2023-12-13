@@ -14,8 +14,16 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { TAGS } from "~/lib/constants";
-import { cn } from "~/lib/utils";
+import { cn, getDomain } from "~/lib/utils";
+import usePublishEvent from "~/nostr-query/client/hooks/usePublishEvent";
+import { type UsePublishEventParams } from "~/nostr-query/types";
+import useEventStore from "~/store/event-store";
+import { useRelayStore } from "~/store/relay-store";
+import { type UserWithKeys } from "~/types";
 import { Check, ChevronsUpDown } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { getEventHash, type Event, type UnsignedEvent } from "nostr-tools";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -44,17 +52,64 @@ export function LinkForm() {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    // TODO: hold onto form values on page change, clear on submit
+    // probably a good use case for jotai
     defaultValues: {
       title: "",
       url: "",
       tag: "",
     },
   });
+  const { pubRelays } = useRelayStore();
+  const { data: session } = useSession();
+  const { newPostEvents, setNewPostEvents } = useEventStore();
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  const params: UsePublishEventParams = {
+    relays: pubRelays,
+  };
+  const { publishEvent, status } = usePublishEvent(params);
+  const router = useRouter();
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const { title, url, tag } = values;
+    const tags = [
+      ["title", title],
+      ["u", url],
+      ["t", tag],
+    ];
+
+    const website = getDomain(url || "");
+
+    if (!website) {
+      // TODO: show error toast
+      return;
+    }
+
+    if (website) {
+      tags.push(["w", website]);
+    }
+
+    const user = session?.user as UserWithKeys;
+    let event: Event = {
+      kind: 1070,
+      tags: tags,
+      content: "",
+      created_at: Math.floor(Date.now() / 1000),
+      pubkey: user.publicKey,
+      id: "",
+      sig: "",
+    };
+    event.id = getEventHash(event);
+    event = (await nostr.signEvent(event)) as Event;
+    const onSeen = (event: Event) => {
+      if (newPostEvents && newPostEvents.length > 0) {
+        setNewPostEvents([event, ...newPostEvents]);
+      }
+      router.push("/");
+    };
+    console.log(event);
+
+    await publishEvent(event, onSeen);
   }
 
   return (
@@ -110,7 +165,7 @@ export function LinkForm() {
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="p-0 popover-content-width-same-as-its-trigger">
+                <PopoverContent className="popover-content-width-same-as-its-trigger p-0">
                   <Command className="dark:bg-zinc-800">
                     <CommandInput placeholder="search tags..." />
                     <CommandEmpty>no tag found.</CommandEmpty>
@@ -142,7 +197,11 @@ export function LinkForm() {
           )}
         />
 
-        <Button type="submit">Submit</Button>
+        {status === "pending" ? (
+          <Button disabled>Submitting...</Button>
+        ) : (
+          <Button type="submit">Submit</Button>
+        )}
       </form>
     </Form>
   );

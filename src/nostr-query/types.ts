@@ -50,3 +50,10 @@ export type Profile = {
   github?: string;
   [key: string]: unknown;
 };
+
+export type UsePublishEventParams = {
+  pool?: SimplePool;
+  relays: string[];
+};
+
+export type PublishEventStatus = "idle" | "pending" | "error" | "success";

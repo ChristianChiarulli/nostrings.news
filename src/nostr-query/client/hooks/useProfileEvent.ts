@@ -6,6 +6,8 @@ import { type Event } from "nostr-tools";
 
 import defaultPool from "../../lib/pool";
 
+// TODO: option for batched profile events
+// NOTE: batching seems to be slow
 const useProfileEvent = ({
   pool = defaultPool,
   relays,

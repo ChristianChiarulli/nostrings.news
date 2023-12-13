@@ -8,6 +8,7 @@ import PostDate from "./PostDate";
 import PostTag from "./PostTag";
 import PostMenu from "./PostMenu";
 import { Zap } from "../zap/Zap";
+import { PostTitle } from "./PostTitle";
 // import { Zap } from "../lightning/zap";
 
 type Props = {
@@ -32,7 +33,7 @@ export default function Post({ postEvent, index }: Props) {
       </span>
       <div className="flex flex-col gap-y-0.5">
         <div className="flex flex-wrap items-center gap-x-2">
-          <h3 className="text-sm">{tag("title", postEvent)}</h3>
+          <PostTitle postEvent={postEvent} />
           <PostLabel postEvent={postEvent} />
         </div>
         <span className="flex gap-x-1">
