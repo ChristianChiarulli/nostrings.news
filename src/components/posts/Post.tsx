@@ -44,7 +44,7 @@ export default function Post({ postEvent, index }: Props) {
           <PostProfile pubkey={postEvent.pubkey} />
           <PostDate createdAt={postEvent.created_at} />
           <PostTag postEvent={postEvent} />
-          {/* <PostMenu /> */}
+          <PostMenu postEvent={postEvent} />
         </span>
       </div>
     </li>
