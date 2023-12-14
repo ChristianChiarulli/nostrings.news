@@ -107,7 +107,6 @@ export function LinkForm() {
       }
       router.push("/");
     };
-    console.log(event);
 
     await publishEvent(event, onSeen);
   }
