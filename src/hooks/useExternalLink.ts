@@ -3,7 +3,7 @@ import { type Event } from "nostr-tools";
 
 const useExternalLink = (postEvent: Event) => {
   let href = "#";
-  let label = "unknown";
+  let label = "[unknown]";
   let color = "text-zinc-500/90 dark:text-zinc-400/90";
   const kind = tag("k", postEvent);
   const website = tag("w", postEvent);
@@ -19,6 +19,12 @@ const useExternalLink = (postEvent: Event) => {
     href = `https://resolvr.io/b/${tag("n", postEvent)}`;
     label = "[bounty]";
     color = "text-orange-500/90 dark:text-orange-400/90";
+  }
+
+  if (kind === "30023") {
+    href = `https://blogstack.io/${tag("n", postEvent)}`;
+    label = "[article]";
+    color = "text-green-500/90 dark:text-green-400/90";
   }
 
   return { href, label, color };
