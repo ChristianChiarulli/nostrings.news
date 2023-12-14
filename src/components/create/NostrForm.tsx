@@ -13,17 +13,16 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import useAuth from "~/hooks/useAuth";
 import { TAGS } from "~/lib/constants";
-import { cn, getDomain } from "~/lib/utils";
+import { cn } from "~/lib/utils";
 import usePublishEvent from "~/nostr-query/client/hooks/usePublishEvent";
 import { type UsePublishEventParams } from "~/nostr-query/types";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
-import { type UserWithKeys } from "~/types";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { getEventHash, type Event, type UnsignedEvent } from "nostr-tools";
+import { getEventHash, nip19, type Event } from "nostr-tools";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -41,10 +40,9 @@ const formSchema = z.object({
     .string()
     .min(4, { message: "title must be at least 4 characters." })
     .max(80, { message: "title must be under 80 characters." }),
-  url: z
-    .string()
-    .url({ message: "Invalid URL format." })
-    .regex(/^https:\/\//, { message: "url must start with https." }),
+  nostrEvent: z.string().regex(/^(naddr|nevent|note)/, {
+    message: "event must start with 'naddr', 'nevent', or 'note'.",
+  }),
   tag: z.string().min(1, { message: "you must select a tag" }),
 });
 
@@ -56,13 +54,13 @@ export function NostrForm() {
     // probably a good use case for jotai
     defaultValues: {
       title: "",
-      url: "",
+      nostrEvent: "",
       tag: "",
     },
   });
   const { pubRelays } = useRelayStore();
-  const { data: session } = useSession();
   const { newPostEvents, setNewPostEvents } = useEventStore();
+  const { pubkey } = useAuth();
 
   const params: UsePublishEventParams = {
     relays: pubRelays,
@@ -71,31 +69,59 @@ export function NostrForm() {
   const router = useRouter();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const { title, url, tag } = values;
-    const tags = [
-      ["title", title],
-      ["u", url],
-      ["t", tag],
-    ];
-
-    const website = getDomain(url || "");
-
-    if (!website) {
+    if (!pubkey) {
       // TODO: show error toast
       return;
     }
 
-    if (website) {
-      tags.push(["w", website]);
+    const { title, nostrEvent, tag } = values;
+
+    const decodedEvent = nip19.decode(nostrEvent);
+
+    if (!decodedEvent) {
+      return;
     }
 
-    const user = session?.user as UserWithKeys;
+    const tags = [
+      ["title", title],
+      ["t", tag],
+      ["n", nostrEvent]
+    ];
+
+    if (decodedEvent.type === "naddr") {
+      const data = decodedEvent.data;
+      const { kind, pubkey, identifier, relays } = data;
+      if (relays?.[0]) {
+        tags.push(["a", `${kind}:${pubkey}:${identifier}`, relays[0]]);
+      } else {
+        tags.push(["a", `${kind}:${pubkey}:${identifier}`]);
+      }
+      tags.push(["k", `${kind}`]);
+    }
+
+    if (decodedEvent.type === "nevent") {
+      const data = decodedEvent.data;
+      const { kind, id, relays } = data;
+      if (relays?.[0]) {
+        tags.push(["e", `${id}`, relays[0]]);
+      } else {
+        tags.push(["e", `${id}`]);
+      }
+      tags.push(["k", `${kind}`]);
+    }
+
+    if (decodedEvent.type === "note") {
+      const data = decodedEvent.data;
+      tags.push(["e", data]);
+      tags.push(["k", "1"]);
+    }
+
     let event: Event = {
       kind: 1070,
       tags: tags,
       content: "",
       created_at: Math.floor(Date.now() / 1000),
-      pubkey: user.publicKey,
+      pubkey: pubkey,
       id: "",
       sig: "",
     };
@@ -129,12 +155,12 @@ export function NostrForm() {
         />
         <FormField
           control={form.control}
-          name="url"
+          name="nostrEvent"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>url</FormLabel>
+              <FormLabel>event</FormLabel>
               <FormControl>
-                <Input placeholder="https..." {...field} />
+                <Input placeholder="note, naddr, or nevent" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
