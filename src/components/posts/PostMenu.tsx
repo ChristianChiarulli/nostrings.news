@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,10 +9,9 @@ import usePublishEvent from "~/nostr-query/client/hooks/usePublishEvent";
 import { type UsePublishEventParams } from "~/nostr-query/types";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
-import { type UserWithKeys } from "~/types";
 import { MoreHorizontal } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { getEventHash, type Event } from "nostr-tools";
+import useAuth from "~/hooks/useAuth";
 
 type Props = {
   postEvent: Event | undefined;
@@ -22,18 +19,9 @@ type Props = {
 
 export default function PostMenu({ postEvent }: Props) {
   const { pubRelays } = useRelayStore();
-  const { data: session } = useSession();
-  // const user = session?.user as UserWithKeys;
-  // const pubkey = user.publicKey;
   const { newPostEvents, setNewPostEvents } = useEventStore();
-  const [pubkey, setPubkey] = useState<string | undefined>(undefined);
 
-  useEffect(() => {
-    if (session) {
-      const user = session?.user as UserWithKeys;
-      setPubkey(user.publicKey);
-    }
-  }, [session]);
+  const { pubkey } = useAuth();
 
   const params: UsePublishEventParams = {
     relays: pubRelays,
@@ -61,7 +49,7 @@ export default function PostMenu({ postEvent }: Props) {
 
     event.id = getEventHash(event);
     event = (await nostr.signEvent(event)) as Event;
-    const onSeen = (event: Event) => {
+    const onSeen = (_: Event) => {
       setNewPostEvents(newPostEvents.filter((e) => e.id !== postEvent.id));
     };
 

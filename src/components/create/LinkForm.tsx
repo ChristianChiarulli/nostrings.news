@@ -13,17 +13,16 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import useAuth from "~/hooks/useAuth";
 import { TAGS } from "~/lib/constants";
 import { cn, getDomain } from "~/lib/utils";
 import usePublishEvent from "~/nostr-query/client/hooks/usePublishEvent";
 import { type UsePublishEventParams } from "~/nostr-query/types";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
-import { type UserWithKeys } from "~/types";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { getEventHash, type Event, type UnsignedEvent } from "nostr-tools";
+import { getEventHash, type Event } from "nostr-tools";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -61,8 +60,8 @@ export function LinkForm() {
     },
   });
   const { pubRelays } = useRelayStore();
-  const { data: session } = useSession();
   const { newPostEvents, setNewPostEvents } = useEventStore();
+  const { pubkey } = useAuth();
 
   const params: UsePublishEventParams = {
     relays: pubRelays,
@@ -71,6 +70,11 @@ export function LinkForm() {
   const router = useRouter();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!pubkey) {
+      // TODO: show error toast
+      return;
+    }
+
     const { title, url, tag } = values;
     const tags = [
       ["title", title],
@@ -89,13 +93,12 @@ export function LinkForm() {
       tags.push(["w", website]);
     }
 
-    const user = session?.user as UserWithKeys;
     let event: Event = {
       kind: 1070,
       tags: tags,
       content: "",
       created_at: Math.floor(Date.now() / 1000),
-      pubkey: user.publicKey,
+      pubkey: pubkey,
       id: "",
       sig: "",
     };

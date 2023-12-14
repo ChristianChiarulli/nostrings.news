@@ -4,15 +4,16 @@ import { NEWS_QUOTES } from "~/lib/constants";
 import { cn } from "~/lib/utils";
 import { Link2, NewspaperIcon, SatelliteDishIcon, UsersRoundIcon } from "lucide-react";
 import Link from "next/link";
+import { NostrForm } from "~/components/create/NostrForm";
 
 const tabs = [
   { name: "link", icon: Link2 },
-  {
-    name: "discuss",
-    icon: UsersRoundIcon,
-  },
+  // {
+  //   name: "discuss",
+  //   icon: UsersRoundIcon,
+  // },
   { name: "nostr", icon: SatelliteDishIcon },
-  { name: "bounty", icon: NewspaperIcon },
+  // { name: "bounty", icon: NewspaperIcon },
 ];
 
 function getRandomNewsQuote() {
@@ -66,7 +67,7 @@ export default async function PostPage({
       </div>
       <div className="mt-10 max-w-md">
         {selectedTab === "link" && <LinkForm />}
-        {/* {selectedTab === "discuss" && <PostArticle />} */}
+        {selectedTab === "nostr" && <NostrForm />}
         {/* {selectedTab === "nostr" && <PostNostr />} */}
       </div>
     </div>
