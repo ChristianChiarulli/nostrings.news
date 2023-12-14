@@ -27,6 +27,12 @@ const useExternalLink = (postEvent: Event) => {
     color = "text-green-500/90 dark:text-green-400/90";
   }
 
+  if (kind === "1") {
+    href = `https://primal.net/e/${tag("n", postEvent)}`;
+    label = "[note]";
+    color = "text-fuchsia-500/90 dark:text-fuchsia-400/90";
+  }
+
   return { href, label, color };
 };
 
